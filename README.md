@@ -24,4 +24,8 @@
 
 ## Contents of `.env`
 
-
+- Link to your MongoDB, something similar to this
+```
+MONGO_DB_URL="mongodb+srv://<USER>:<password>@cluster0.yrugr0p.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
+```
+- 
