@@ -2,6 +2,7 @@
 
 
 ## Overview
+<img src="README-assets/end-to-end-training-pipeline.png" alt="End-to-end-Machine-Learning-Data-Science-Training-Pipeline" style="width:100%;"/>
 
 
 ### Features
