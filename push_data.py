@@ -9,6 +9,7 @@ import pymongo
 from networksecurity.exception.exception import NetworkSecurityException
 from networksecurity.logging.logger import logging
 from pathlib import Path
+from ucimlrepo import fetch_ucirepo 
 
 # Load environment variables
 load_dotenv()
@@ -29,29 +30,43 @@ class NetworkDataExtract:
         except Exception as e:
             raise NetworkSecurityException(e)
 
-    def csv_to_json_converter(self, file_path: Path):
+    def extract_phishing_records(self, ):
         """
-        Converts a CSV file to a list of JSON records.
-
-        Parameters:
-        -----------
-        file_path : Path
-            Path to the CSV file.
+        Fetches the Phishing Websites dataset from the UCI repository, processes it into a DataFrame,
+        and returns the data as a list of JSON-like dictionary records.
 
         Returns:
         --------
-        list
-            A list of JSON (dictionary) records derived from the CSV.
+        list of dict
+            A list of dictionary records, where each dictionary represents a column of the original dataset,
+            keyed by row index.
+
+        Raises:
+        -------
+        NetworkSecurityException
+            If any error occurs during dataset fetching or processing.
         """
         try:
-            data = pd.read_csv(filepath_or_buffer=file_path)
+            # Get "Phishing Websites" dataset from UCI repository
+            phishing_websites = fetch_ucirepo(id=327) 
+  
+            # Data (as pandas dataframes) 
+            X = phishing_websites.data.features 
+            y = phishing_websites.data.targets 
+
+            # Concat features and target class into one dataframe             
+            data = pd.DataFrame(data=X)
+            data = pd.concat([X, y],axis=1)
             data.reset_index(drop=True, inplace=True)
+
+            # Transpose the DataFrame, convert it to JSON, load it back as a Python dict, 
+            # then extract the values as a list of records
             records=list(json.loads(data.T.to_json()).values())
             return records
         except Exception as e:
             raise NetworkSecurityException(e)
         
-    def insert_data_to_mongodb(self, records, database, collection):
+    def load_data_to_mongodb(self, records, database, collection):
         """
         Inserts list of JSON records into specified MongoDB database and collection.
 
@@ -88,11 +103,17 @@ class NetworkDataExtract:
 
 # Main ETL execution
 if __name__ == '__main__':
-    FILE_PATH="Network_Data/phisingData.csv"
     DATABASE="NETWORKSECURITY_DB"
     Collection="NetworkData"
     
+    # Create an instance of the data extraction class
     networkobj=NetworkDataExtract()
-    records=networkobj.csv_to_json_converter(file_path=FILE_PATH)
-    no_of_records=networkobj.insert_data_to_mongodb(records=records, database=DATABASE, collection=Collection)
+
+    # Extract phishing dataset records from UCI repository
+    records=networkobj.extract_phishing_records()
+
+    # Load the extracted records into the specified MongoDB collection
+    no_of_records=networkobj.load_data_to_mongodb(records=records, database=DATABASE, collection=Collection)
+
+    # Output the number of records successfully inserted
     print(no_of_records)
