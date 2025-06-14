@@ -1,7 +1,7 @@
 import sys
-from networksecurity.logging import logger
+from ml_pipeline.logging import logger
 
-class NetworkSecurityException(Exception):
+class MLPipelineException(Exception):
     def __init__(self, error_message):
         self.error_message = error_message
         _, _, exc_tb = sys.exc_info()
