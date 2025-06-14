@@ -6,8 +6,8 @@ import certifi
 import pandas as pd
 import numpy as np
 import pymongo
-from networksecurity.exception.exception import NetworkSecurityException
-from networksecurity.logging.logger import logging
+from ml_pipeline.exception.exception import MLPipelineException
+from ml_pipeline.logging.logger import logging
 from pathlib import Path
 from ucimlrepo import fetch_ucirepo 
 
@@ -28,7 +28,7 @@ class NetworkDataExtract:
         try:
             pass
         except Exception as e:
-            raise NetworkSecurityException(e)
+            raise MLPipelineException(e)
 
     def extract_phishing_records(self, ):
         """
@@ -64,7 +64,7 @@ class NetworkDataExtract:
             records=list(json.loads(data.T.to_json()).values())
             return records
         except Exception as e:
-            raise NetworkSecurityException(e)
+            raise MLPipelineException(e)
         
     def load_data_to_mongodb(self, records, database, collection):
         """
@@ -98,13 +98,13 @@ class NetworkDataExtract:
             return len(records)
         
         except Exception as e:
-            raise NetworkSecurityException(e)
+            raise MLPipelineException(e)
 
 
 # Main ETL execution
 if __name__ == '__main__':
-    DATABASE="NETWORKSECURITY_DB"
-    Collection="NetworkData"
+    DATABASE="MLPROJECT_DB"
+    Collection="MLData"
     
     # Create an instance of the data extraction class
     networkobj=NetworkDataExtract()
