@@ -1,6 +1,6 @@
 from datetime import datetime
 import os
-from networksecurity.constants import training_pipeline
+from ml_pipeline.constants import training_pipeline
 
 class TrainingPipelineConfig:
     """

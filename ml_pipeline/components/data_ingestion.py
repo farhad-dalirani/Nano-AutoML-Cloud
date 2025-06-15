@@ -7,13 +7,13 @@ from typing import List
 from sklearn.model_selection import train_test_split
 from dotenv import load_dotenv
 
-from networksecurity.exception.exception import NetworkSecurityException
-from networksecurity.logging.logger import logging
+from ml_pipeline.exception.exception import MLPipelineException
+from ml_pipeline.logging.logger import logging
 
 # Configuration for the Data Ingestion Config
-from networksecurity.entity.config_entity import DataIngestionConfig
+from ml_pipeline.entity.config_entity import DataIngestionConfig
 
-from networksecurity.entity.artifact_entity import DataIngestionArtifact
+from ml_pipeline.entity.artifact_entity import DataIngestionArtifact
 
 # Read .env file
 load_dotenv()
@@ -39,7 +39,7 @@ class DataIngestion:
         try:
             self.data_ingestion_config = data_ingestion_config
         except Exception as e:
-            raise NetworkSecurityException(e)
+            raise MLPipelineException(e)
     
     def export_collection_as_dataframe(self):
         """
@@ -72,7 +72,7 @@ class DataIngestion:
             return df
 
         except Exception as e:
-            raise NetworkSecurityException(e)
+            raise MLPipelineException(e)
 
     def export_data_into_feature_store(self, dataframe: pd.DataFrame):
         """
@@ -101,7 +101,7 @@ class DataIngestion:
             return dataframe
 
         except Exception as e:
-            raise NetworkSecurityException(e)
+            raise MLPipelineException(e)
 
     def split_data_to_train_and_test(self, dataframe: pd.DataFrame):
         """
@@ -133,7 +133,7 @@ class DataIngestion:
             logging.info("Test data was saved in {}".format(self.data_ingestion_config.testing_file_path))
 
         except Exception as e:
-            raise NetworkSecurityException(e)
+            raise MLPipelineException(e)
 
     def initiate_data_ingestion(self):
         """
@@ -160,5 +160,5 @@ class DataIngestion:
             return data_ingestion_artifact
 
         except Exception as e:
-            raise NetworkSecurityException(e)
+            raise MLPipelineException(e)
         
