@@ -139,4 +139,30 @@ class DataTransformationConfig:
             training_pipeline.DATA_TRANSFORMATION_TRANSFORMED_OBJECT_DIR,
             training_pipeline.PREPROCESSING_OBJECT_FILE_NAME
         )
-        
+
+
+class ModelTrainerConfig:
+    """
+    Configuration class for managing model training settings in the training pipeline.
+
+    Attributes:
+        model_trainer_dir (str): Root directory for all model training artifacts.
+        trained_model_file_path (str): Path to the final trained model file.
+        expected_accuracy (float): Minimum accuracy threshold that the model must achieve.
+        overfitting_underfitting_threshold (float): Threshold used to detect overfitting or underfitting
+                                                    based on the difference between training and testing performance.
+        model_type (str): Type of model to be trained, either 'classification' or 'regression'.
+    """
+    def __init__(self,training_pipeline_config:TrainingPipelineConfig):
+        self.model_trainer_dir: str = os.path.join(
+            training_pipeline_config.artifact_dir, 
+            training_pipeline.MODEL_TRAINER_DIR_NAME
+        )
+        self.trained_model_file_path: str = os.path.join(
+            self.model_trainer_dir, 
+            training_pipeline.MODEL_TRAINER_TRAINED_MODEL_DIR, 
+            training_pipeline.MODEL_FILE_NAME
+        )
+        self.expected_accuracy: float = training_pipeline.MODEL_TRAINER_EXPECTED_SCORE
+        self.overfitting_underfitting_threshold = training_pipeline.MODEL_TRAINER_OVER_FIITING_UNDER_FITTING_THRESHOLD
+        self.model_type = training_pipeline.MODEL_TYPE
