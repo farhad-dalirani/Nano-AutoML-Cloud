@@ -7,5 +7,6 @@ pymongo[srv]
 scikit-learn
 ucimlrepo
 pyaml
+mlflow
 
 #-e .
