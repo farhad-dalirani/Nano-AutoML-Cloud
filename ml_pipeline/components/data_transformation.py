@@ -15,7 +15,7 @@ from ml_pipeline.entity.config_entity import DataTransformationConfig
 from ml_pipeline.utils.main_utils.utils import save_numpy_array_data, save_object
 
 
-class DataTransormation:
+class DataTransformation:
     def __init__(
             self, 
             data_validation_artifact: DataValidationArtifact,
@@ -71,8 +71,8 @@ class DataTransormation:
         try:
             logging.info("Starting data transformation.")
 
-            train_df = DataTransormation.read_data(self.data_validation_artifact.valid_train_file_path)
-            test_df = DataTransormation.read_data(self.data_validation_artifact.valid_test_file_path)
+            train_df = DataTransformation.read_data(self.data_validation_artifact.valid_train_file_path)
+            test_df = DataTransformation.read_data(self.data_validation_artifact.valid_test_file_path)
 
             # Training dataframe
             input_feature_train_df = train_df.drop(columns=[TARGET_COLUMN], axis=1)
@@ -89,7 +89,7 @@ class DataTransormation:
                 target_feature_test_df.replace(DATA_TRANSFORMATION_TARGET_CLASS_MAPPING)
 
             # Get imputter for for filling lost features
-            preprocessor = DataTransormation.get_data_transformer_object()
+            preprocessor = DataTransformation.get_data_transformer_object()
 
             preprocessor_object = preprocessor.fit(input_feature_train_df)
             transformed_input_train_feature = preprocessor_object.transform(input_feature_train_df)
