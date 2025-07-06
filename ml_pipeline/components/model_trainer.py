@@ -224,9 +224,17 @@ class ModelTrainer:
         # Create a pipeline object containing both preprocessor and trained model
         final_ml_model = MLModel(preprocessor=preprocessor, model=best_model) 
 
-        # Save the final ML model to disk
+        # Save the final ML model to disk in its experiment folder
         save_object(
             file_path=self.model_trainer_config.trained_model_file_path, 
+            obj=final_ml_model
+        )
+
+        # Save the mode and preprocssor in 'final_model'
+        final_model_dir_path = os.path.dirname(self.model_trainer_config.final_trained_model_file_path)
+        os.makedirs(final_model_dir_path, exist_ok=True)
+        save_object(
+            file_path=self.model_trainer_config.final_trained_model_file_path, 
             obj=final_ml_model
         )
 

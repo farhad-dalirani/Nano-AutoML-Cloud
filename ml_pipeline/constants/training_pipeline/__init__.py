@@ -31,6 +31,9 @@ SAVED_MODEL_DIR =os.path.join("saved_models")
 
 MODEL_FILE_NAME = "model.pkl"
 
+# Directory to save trained model for use 
+FINAL_MODEL_DIR = os.path.join('final_model')
+
 
 """
 Data Ingestion related constant start with DATA_INGESTION VAR NAME
