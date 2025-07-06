@@ -88,9 +88,20 @@ class ModelTrainer:
                 except Exception as e:
                     logging.info("Failed to infer model signiture.")
 
+            # Log model type
+            model_class_name = best_model.__class__.__name__
+            mlflow.log_param("model_type", model_class_name)
+
+            # Log model hyperparameters
+            if hasattr(best_model, 'get_params'):
+                params = best_model.get_params()
+                mlflow.log_params(params)
+            else:
+                logging.warning(f"Model {model_class_name} does not support 'get_params'.")
+
             mlflow.sklearn.log_model(
                 sk_model=best_model, 
-                artifact_path="model",
+                name="model",
                 signature=signiture,
                 input_example=input_example
             )
