@@ -1,0 +1,167 @@
+import os
+
+from ml_pipeline.logging.logger import logging
+from ml_pipeline.exception.exception import MLPipelineException
+
+from ml_pipeline.components.data_ingestion import DataIngestion
+from ml_pipeline.components.data_validation import DataValidation
+from ml_pipeline.components.data_transformation import DataTransformation
+from ml_pipeline.components.model_trainer import ModelTrainer
+
+from ml_pipeline.entity.config_entity import (
+    TrainingPipelineConfig,
+    DataIngestionConfig,
+    DataValidationConfig,
+    DataTransformationConfig,
+    ModelTrainerConfig
+)
+
+from ml_pipeline.entity.artifact_entity import (
+    DataIngestionArtifact,
+    DataValidationArtifact,
+    DataTransformationArtifact,
+    ModelTrainerArtifact
+)
+
+class TrainingPipeline:
+    """
+    A class that defines the end-to-end machine learning training pipeline.
+
+    The pipeline consists of the following sequential steps:
+    1. Data Ingestion
+    2. Data Validation
+    3. Data Transformation
+    4. Model Training
+
+    Each step produces an artifact which is passed to the next stage.
+    """
+
+    def __init__(self):
+        """
+        Initializes the TrainingPipeline with a general TrainingPipelineConfig.
+        """
+        self.training_pipeline_config = TrainingPipelineConfig()
+
+    def start_data_ingestion(self):
+        """
+        Initiates the data ingestion process.
+
+        Returns:
+            DataIngestionArtifact: Artifact containing details of the ingested data.
+
+        Raises:
+            MLPipelineException: If data ingestion fails.
+        """
+        try:
+            self.data_ingestion_config = DataIngestionConfig(
+                training_pipeline_config=self.training_pipeline_config
+            )
+            logging.info("Initiate the data ingestion.")
+            data_ingestion = DataIngestion(data_ingestion_config=self.data_ingestion_config)
+            data_ingestion_artifact = data_ingestion.initiate_data_ingestion()
+            logging.info("Data ingestion was completed and data ingestion artifact: {}".format(data_ingestion_artifact))
+            return data_ingestion_artifact
+        except Exception as e:
+            raise MLPipelineException(e)
+
+    def start_data_validation(self, data_ingestion_artifact: DataIngestionArtifact):
+        """
+        Initiates the data validation process.
+
+        Args:
+            data_ingestion_artifact (DataIngestionArtifact): Artifact from the data ingestion step.
+
+        Returns:
+            DataValidationArtifact: Artifact containing results of the validation process.
+
+        Raises:
+            MLPipelineException: If data validation fails.
+        """
+        try:
+            self.data_validation_config = DataValidationConfig(
+                training_pipeline_config=self.training_pipeline_config
+            )
+            logging.info("Initiate the data validation.")
+            data_validation = DataValidation(
+                data_ingestion_artifact=data_ingestion_artifact, 
+                data_validation_config=self.data_validation_config
+            )
+            data_validation_artifact = data_validation.initiate_data_validation()
+            logging.info("Data validation was completed and artifact: {}.".format(data_validation_artifact))
+            return data_validation_artifact
+        except Exception as e:
+            raise MLPipelineException(e)
+    
+    def start_data_transformation(self, data_validation_artifact: DataValidationArtifact):
+        """
+        Initiates the data transformation process.
+
+        Args:
+            data_validation_artifact (DataValidationArtifact): Artifact from the data validation step.
+
+        Returns:
+            DataTransformationArtifact: Artifact containing transformed features and target data.
+
+        Raises:
+            MLPipelineException: If data transformation fails.
+        """
+        try:
+            self.data_transformation_config = DataTransformationConfig(
+                training_pipeline_config=self.training_pipeline_config
+            )
+            logging.info("Initiate Data Transformation.")
+            data_transformation = DataTransformation(
+                                    data_validation_artifact=data_validation_artifact,
+                                    data_transformation_config=self.data_transformation_config
+                                )
+            data_transformation_artifact = data_transformation.initiate_data_transformation()
+            logging.info("Data Transformation was completed and artifact {}".format(data_transformation_artifact))
+            return data_transformation_artifact
+        except Exception as e:
+            raise MLPipelineException(e)
+
+    def start_model_trainer(self, data_transformation_artifact: DataTransformationArtifact):
+        """
+        Initiates the model training process.
+
+        Args:
+            data_transformation_artifact (DataTransformationArtifact): Artifact from the data transformation step.
+
+        Returns:
+            ModelTrainerArtifact: Artifact containing trained model and performance metrics.
+
+        Raises:
+            MLPipelineException: If model training fails.
+        """
+        try:
+            self.model_training_config = ModelTrainerConfig(
+                training_pipeline_config=self.training_pipeline_config
+            )
+            logging.info("Model training started.")
+            model_training = ModelTrainer(
+                model_trainer_config=self.model_training_config, 
+                data_transform_artifact=data_transformation_artifact
+            )
+            model_trainer_artifact = model_training.initiate_model_trainer()
+            logging.info("Model training was finished and artifact: {}.".format(model_trainer_artifact))
+        except Exception as e:
+            raise MLPipelineException(e)
+
+    def run(self):
+        """
+        Executes the full training pipeline from data ingestion to model training.
+
+        Returns:
+            ModelTrainerArtifact: Final artifact after model training.
+
+        Raises:
+            MLPipelineException: If any pipeline stage fails.
+        """
+        try:
+            data_ingestion_artifact = self.start_data_ingestion()
+            data_validation_artifact = self.start_data_validation(data_ingestion_artifact=data_ingestion_artifact)
+            data_transformation_artifact = self.start_data_transformation(data_validation_artifact=data_validation_artifact)
+            model_trainer_artifact = self.start_model_trainer(data_transformation_artifact=data_transformation_artifact)
+            return model_trainer_artifact
+        except Exception as e:
+            raise MLPipelineException(e)
