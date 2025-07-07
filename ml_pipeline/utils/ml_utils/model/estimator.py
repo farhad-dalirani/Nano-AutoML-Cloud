@@ -1,5 +1,8 @@
 import os
 import sys 
+import numpy as np
+import pandas as pd
+from typing import Union
 
 from ml_pipeline.exception.exception import MLPipelineException
 from ml_pipeline.logging.logger import logging
@@ -38,7 +41,7 @@ class MLModel:
         except Exception as e:
             raise MLPipelineException(e)
         
-    def predict(self, x):
+    def predict(self, x: Union[pd.DataFrame, np.ndarray]):
         """
         Generates predictions for the given input data after preprocessing.
 
