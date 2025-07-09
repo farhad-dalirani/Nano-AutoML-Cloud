@@ -1,11 +1,10 @@
-# End-to-End MLOps Pipeline Framework
+# Nano-AutoML: End-to-End, Production-Ready Machine Learning Pipeline
+**Nano-AutoML** is a robust, end-to-end machine learning pipeline designed for tabular data, supporting both classification and regression tasks. The project is production-ready and optimized for deployment on **cloud platforms** such as AWS. It adheres to modern **MLOps practices** and **CI/CD** standards, ensuring scalability, maintainability, and seamless integration into real-world systems.
+
+<img src="README-assets/end-to-end-training-pipeline.png" alt="Nano-AutoML End-to-end-Machine-Learning-Data-Science-Training-Pipeline" style="width:100%;"/>
 
 
-## Overview
-<img src="README-assets/end-to-end-training-pipeline.png" alt="End-to-end-Machine-Learning-Data-Science-Training-Pipeline" style="width:100%;"/>
-
-
-### Features
+## Features and Components
 
 
 ## Installation and Usage
