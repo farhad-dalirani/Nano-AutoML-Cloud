@@ -73,6 +73,7 @@ async def run_train_pipeline():
         train_pipeline=TrainingPipeline()
         train_pipeline.run()
     except Exception as e:
+        logging.error(e)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, 
             detail="Initiating train pipeline was failed."
@@ -96,6 +97,7 @@ async def predict(request: Request, file: UploadFile=File(...)):
                           along with predicted results in a table.
     """
     if not file.filename.endswith(".csv"):
+        logging.error("Batch prediction: Only .csv files are accepted")
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Only .csv files are accepted"
@@ -118,7 +120,7 @@ async def predict(request: Request, file: UploadFile=File(...)):
         return templates.TemplateResponse("table.html", {"request": request, "table": html_table})
 
     except Exception as e:
-        print(e)
+        logging.error(e)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, 
             detail="Batch prediction was failed."

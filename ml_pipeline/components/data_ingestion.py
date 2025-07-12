@@ -27,7 +27,7 @@ class DataIngestion:
     for machine learning purposes.
     """
 
-    def __init__(self, data_ingestion_config):
+    def __init__(self, data_ingestion_config: DataIngestionConfig):
         """
         Initializes the DataIngestion object with configuration.
 

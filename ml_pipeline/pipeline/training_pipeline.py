@@ -84,7 +84,8 @@ class TrainingPipeline:
             logging.info("Initiate the data validation.")
             data_validation = DataValidation(
                 data_ingestion_artifact=data_ingestion_artifact, 
-                data_validation_config=self.data_validation_config
+                data_validation_config=self.data_validation_config,
+                training_pipeline_config=self.training_pipeline_config
             )
             data_validation_artifact = data_validation.initiate_data_validation()
             logging.info("Data validation was completed and artifact: {}.".format(data_validation_artifact))
@@ -112,7 +113,8 @@ class TrainingPipeline:
             logging.info("Initiate Data Transformation.")
             data_transformation = DataTransformation(
                                     data_validation_artifact=data_validation_artifact,
-                                    data_transformation_config=self.data_transformation_config
+                                    data_transformation_config=self.data_transformation_config,
+                                    training_pipeline_config=self.training_pipeline_config
                                 )
             data_transformation_artifact = data_transformation.initiate_data_transformation()
             logging.info("Data Transformation was completed and artifact {}".format(data_transformation_artifact))

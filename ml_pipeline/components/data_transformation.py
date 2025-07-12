@@ -8,21 +8,22 @@ from sklearn.pipeline import Pipeline
 
 from ml_pipeline.logging.logger import logging
 from ml_pipeline.exception.exception import MLPipelineException
-from ml_pipeline.constants.training_pipeline import TARGET_COLUMN, DATA_TRANSFORMATION_ENABLE_TARGET_CLASS_MAPPING, DATA_TRANSFORMATION_TARGET_CLASS_MAPPING
 from ml_pipeline.constants.training_pipeline import DATA_TRANSFORMATION_IMPUTER_PARAMS
 from ml_pipeline.entity.artifact_entity import DataTransformationArtifact, DataValidationArtifact
-from ml_pipeline.entity.config_entity import DataTransformationConfig
-from ml_pipeline.utils.main_utils.utils import save_numpy_array_data, save_object
+from ml_pipeline.entity.config_entity import DataTransformationConfig, TrainingPipelineConfig
+from ml_pipeline.utils.main_utils.utils import save_numpy_array_data, save_object, read_yaml_file
 
 
 class DataTransformation:
     def __init__(
             self, 
             data_validation_artifact: DataValidationArtifact,
-            data_transformation_config:DataTransformationConfig):
+            data_transformation_config:DataTransformationConfig,
+            training_pipeline_config: TrainingPipelineConfig):
         try:
             self.data_validation_artifact:DataValidationArtifact = data_validation_artifact
             self.data_transformation_config:DataTransformationConfig = data_transformation_config
+            self.training_pipeline_config:TrainingPipelineConfig = training_pipeline_config
         except Exception as e:
             raise MLPipelineException(e)
 
@@ -74,21 +75,28 @@ class DataTransformation:
             train_df = DataTransformation.read_data(self.data_validation_artifact.valid_train_file_path)
             test_df = DataTransformation.read_data(self.data_validation_artifact.valid_test_file_path)
 
+            # Read data schema file for to check if target class values mapping to new values is needed  
+            schema = read_yaml_file(file_path=self.training_pipeline_config.schema_file_path)
+
             # Training dataframe
-            input_feature_train_df = train_df.drop(columns=[TARGET_COLUMN], axis=1)
-            target_feature_train_df = train_df[TARGET_COLUMN]
+            input_feature_train_df = train_df.drop(columns=[self.training_pipeline_config.target_column], axis=1)
+            target_feature_train_df = train_df[self.training_pipeline_config.target_column]
             # Remap target class labels to new values based on predefined mapping
-            if DATA_TRANSFORMATION_ENABLE_TARGET_CLASS_MAPPING:
-                target_feature_train_df.replace(DATA_TRANSFORMATION_TARGET_CLASS_MAPPING)
+            if schema.get("DATA_TRANSFORMATION_ENABLE_TARGET_CLASS_MAPPING", False):
+                mapping = schema.get("DATA_TRANSFORMATION_TARGET_CLASS_MAPPING", {})
+                target_feature_train_df = target_feature_train_df.replace(mapping)
+                logging.info("Trainset Target class values were remaped: {}".format(mapping))
 
             # Test dataframe
-            input_feature_test_df = test_df.drop(columns=[TARGET_COLUMN], axis=1)
-            target_feature_test_df = test_df[TARGET_COLUMN]
+            input_feature_test_df = test_df.drop(columns=[self.training_pipeline_config.target_column], axis=1)
+            target_feature_test_df = test_df[self.training_pipeline_config.target_column]
             # Remap target class labels to new values based on predefined mapping
-            if DATA_TRANSFORMATION_ENABLE_TARGET_CLASS_MAPPING:
-                target_feature_test_df.replace(DATA_TRANSFORMATION_TARGET_CLASS_MAPPING)
+            if schema.get("DATA_TRANSFORMATION_ENABLE_TARGET_CLASS_MAPPING", False):
+                mapping = schema.get("DATA_TRANSFORMATION_TARGET_CLASS_MAPPING", {})
+                target_feature_test_df = target_feature_test_df.replace(mapping)
+                logging.info("Test Target class values were remaped: {}".format(mapping))
 
-            # Get imputter for for filling lost features
+            # Get imputer for filling missing features
             preprocessor = DataTransformation.get_data_transformer_object()
 
             preprocessor_object = preprocessor.fit(input_feature_train_df)

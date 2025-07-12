@@ -1,17 +1,26 @@
 from datetime import datetime
 import os
 from ml_pipeline.constants import training_pipeline
+from ml_pipeline.utils.main_utils.utils import read_yaml_file
 
 class TrainingPipelineConfig:
     """
     Configuration class for setting up the training pipeline.
 
+    This class initializes and manages key paths and settings used during the training process, 
+    such as directories for artifacts and models, the target column, and the type of ML task.
+
     Attributes:
-        pipeline_name (str): Name of the pipeline.
-        artifact_name (str): Base directory name where artifacts are stored.
-        artifact_dir (str): Full path to the artifact directory including a timestamp.
-        model_dir (str): Path where the final model will be stored.
-        timestamp (str): Timestamp used to create unique directory paths.
+        pipeline_name (str): Name of the training pipeline (from constants).
+        artifact_name (str): Root directory name for storing all pipeline artifacts.
+        artifact_dir (str): Full path to the time-stamped artifact directory.
+        model_dir (str): Directory path where the final model will be saved.
+        timestamp (str): String timestamp used for directory versioning (format: MM_DD_YYYY_HH_MM_SS).
+        target_column (str): Name of the target (label) column in the dataset.
+        task_type (str): Type of machine learning task; must be either 'classification' or 'regression'.
+
+    Raises:
+        ValueError: If `task_type` is not one of ['classification', 'regression'].
     """
     def __init__(self, timestamp=datetime.now()):
         timestamp=timestamp.strftime("%m_%d_%Y_%H_%M_%S")
@@ -20,6 +29,23 @@ class TrainingPipelineConfig:
         self.artifact_dir=os.path.join(self.artifact_name, timestamp)
         self.model_dir=os.path.join("final_model")
         self.timestamp: str=timestamp
+        
+        self.schema_file_path = training_pipeline.SCHEMA_FILE_PATH
+
+        # Load schema from YAML
+        if not os.path.exists(self.schema_file_path):
+            raise FileNotFoundError(f"Schema file not found at: {self.schema_file_path}")
+
+        schema = read_yaml_file(file_path=self.schema_file_path)
+
+        self.target_column = schema.get("target_column")
+        self.task_type = schema.get("task_type")
+
+        if not self.target_column:
+            raise ValueError("Missing or empty 'target_column' in schema.")
+
+        if self.task_type not in ['classification', 'regression']:
+            raise ValueError(f'Task type must be "classification" or "regression", but got: {self.task_type}')
 
 
 class DataIngestionConfig:
@@ -169,4 +195,4 @@ class ModelTrainerConfig:
         )
         self.expected_accuracy: float = training_pipeline.MODEL_TRAINER_EXPECTED_SCORE
         self.overfitting_underfitting_threshold = training_pipeline.MODEL_TRAINER_OVER_FIITING_UNDER_FITTING_THRESHOLD
-        self.model_type = training_pipeline.MODEL_TYPE
+        self.model_type = training_pipeline_config.task_type
