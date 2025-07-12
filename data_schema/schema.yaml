@@ -1,3 +1,9 @@
+# MongoDB database name
+database_name: "MLPROJECT_DB"
+
+# MongoDB collection name for storing the dataset
+collection_name: "MLData"
+
 # Type of machine learning task: 'classification' or 'regression'
 task_type: classification 
 
