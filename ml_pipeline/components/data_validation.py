@@ -186,7 +186,7 @@ class DataValidation:
         
         except Exception as e:
             raise MLPipelineException(e)
-
+    
     def initiate_data_validation(self)->DataValidationArtifact:
         """
         Performs the data validation process.
@@ -197,7 +197,7 @@ class DataValidation:
         Returns:
             DataValidationArtifact: Artifact containing validation status and output file paths.
         """
-        try:
+        try:           
             # Path to training and test sets
             train_file_path = self.data_ingestion_artifact.train_file_path
             test_file_path = self.data_ingestion_artifact.test_file_path
@@ -213,7 +213,6 @@ class DataValidation:
             # Validate target column
             status_target_col_train = self.validate_target_column(dataframe=train_dataframe)
             status_target_col_test = self.validate_target_column(dataframe=test_dataframe)
-
 
             # Check data drift between test and train sets
             status_drift = self.detect_dataset_drift(

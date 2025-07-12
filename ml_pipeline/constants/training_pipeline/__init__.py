@@ -38,12 +38,6 @@ FINAL_MODEL_DIR = os.path.join('final_model')
 """
 Data Ingestion related constant start with DATA_INGESTION VAR NAME
 """
-# MongoDB collection name for storing the dataset
-DATA_INGESTION_COLLECTION_NAME: str = "MLData"
-
-# MongoDB database name
-DATA_INGESTION_DATABASE_NAME: str = "MLPROJECT_DB"
-
 # Root directory for data ingestion artifacts
 DATA_INGESTION_DIR_NAME: str = "data_ingestion"
 
