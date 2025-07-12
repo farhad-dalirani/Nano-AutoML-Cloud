@@ -190,7 +190,8 @@ class ModelTrainer:
             X_train=X_train, y_train=y_train,
             X_test=X_test, y_test=y_test,
             models=models,
-            params=params    
+            params=params,
+            task_type=self.model_trainer_config.model_type    
         )
 
         # Identify the best-performing model based on evaluation score
