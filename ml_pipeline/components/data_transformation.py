@@ -47,6 +47,28 @@ class DataTransformation:
             raise MLPipelineException(e)
     
     def get_data_transformer_object(self) -> ColumnTransformer:
+        """
+        Creates a data transformer pipeline that preprocesses numerical and categorical features
+        according to the schema defined in the training pipeline configuration.
+
+        Processing steps:
+        - Numerical features:
+            - Missing value imputation using KNNImputer with predefined parameters.
+            - Feature scaling using StandardScaler.
+        - Categorical features:
+            - Missing value imputation using the most frequent strategy.
+            - One-hot encoding with handling of unknown categories.
+
+        The method also validates the schema to ensure the target column is not included in
+        the feature columns.
+
+        Returns:
+            ColumnTransformer: A composite transformer that applies the appropriate preprocessing
+            pipelines to numerical and categorical features.
+
+        Raises:
+            MLPipelineException: If schema validation fails or any error occurs during pipeline creation.
+        """
         try:
             numerical_columns = self.schema.get("numerical_columns", [])
             if numerical_columns is None:
