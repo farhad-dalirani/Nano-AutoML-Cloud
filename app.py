@@ -83,23 +83,23 @@ async def get_dataset_names() -> Dict[str, List[str]]:
 @app.get('/train/{database_name}', status_code=status.HTTP_200_OK)
 async def run_train_pipeline(database_name: str):
     """
-    Endpoint to trigger the training pipeline for a given database (dataset).
+    Triggers the model training pipeline for a specified dataset.
 
-    The server scans the schema directory for all available schema files and checks
-    if any contain the given `database_name` as the value of `DB_collection_name`.
-
-    If found, the corresponding schema file is used to initiate the training pipeline.
+    This endpoint initiates the training process using a schema configuration associated 
+    with the given `database_name`. The server looks for a matching entry in the schema 
+    directory and uses it to configure and execute the training pipeline.
 
     Args:
-        database_name (str): The name of the MongoDB collection (dataset) as defined
-                             in the `DB_collection_name` field of a schema file.
+        database_name (str): The name of the MongoDB collection (dataset), which must match 
+                            the `DB_collection_name` defined in one of the schema files.
 
     Returns:
-        dict: A message confirming successful training, or an error if not found or failed.
+        dict: A success message indicating the training pipeline ran successfully.
 
     Raises:
-        HTTPException (404): If the provided database name does not match any known schema.
-        HTTPException (500): If the training pipeline fails to run.
+        HTTPException:
+            - 404 NOT FOUND: If no schema is found that matches the provided database name.
+            - 500 INTERNAL SERVER ERROR: If the training pipeline fails to execute due to an internal error.
     """
     try:
         # Step 1: Load map of {DB_collection_name: schema_filename}
@@ -129,22 +129,30 @@ async def run_train_pipeline(database_name: str):
             detail="Training pipeline execution failed due to internal error."
         )
     
-@app.post('/predict', status_code=status.HTTP_200_OK)
-async def predict(request: Request, file: UploadFile=File(...)):  
+@app.post('/predict/', status_code=status.HTTP_200_OK)
+async def predict(request: Request, database_name: str, file: UploadFile=File(...)):  
     """
-    Performs batch prediction on an uploaded CSV file.
+    Handles batch prediction using a machine learning model on data provided in a CSV file.
+
+    This endpoint accepts a CSV file and a database name, validates the inputs, loads the 
+    appropriate schema for the selected database, performs predictions using a pre-trained 
+    machine learning model, and returns an HTML page displaying the original input data 
+    with an added column for predicted results.
 
     Args:
-        request (Request): FastAPI request object.
-        file (UploadFile): Uploaded CSV file containing input data for prediction.
+        request (Request): FastAPI request object used for rendering templates.
+        database_name (str): Name of the target database, used to select the appropriate schema and model.
+        file (UploadFile): A CSV file containing input data to be used for batch prediction.
 
     Raises:
-        HTTPException: If the uploaded file is not a CSV.
-        HTTPException: If batch prediction process fails.
+        HTTPException: 
+            - 400 BAD REQUEST if the uploaded file is not a CSV.
+            - 404 NOT FOUND if the provided database name is not defined in the schema mapping.
+            - 500 INTERNAL SERVER ERROR if any unexpected error occurs during the prediction process.
 
     Returns:
-        TemplateResponse: Renders an HTML page displaying the input data
-                          along with predicted results in a table.
+        TemplateResponse: An HTML page rendering the input data along with predicted values 
+                        in a formatted table.
     """
     if not file.filename.endswith(".csv"):
         logging.error("Batch prediction: Only .csv files are accepted")
@@ -154,13 +162,20 @@ async def predict(request: Request, file: UploadFile=File(...)):
         )
     
     try:
+        # Load map of {DB_collection_name: schema_filename}
+        dataset_mapping = get_dataset_schema_mapping(SCHEMA_DIR)
+        # Check if requested DB name exists
+        if database_name not in dataset_mapping:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Database name '{database_name}' not found in schema definitions."
+            )
+
         # Read data from file
         df_input = pd.read_csv(file.file)
 
-        # Check with schema
-
         # Predict with ML model
-        y_pred = batch_data_prediction(df_input_data=df_input)
+        y_pred = batch_data_prediction(df_input_data=df_input, schema_file_path=os.path.join(SCHEMA_DIR, dataset_mapping[database_name]))
 
         # Concat the prediction to input
         df_input['predicted_column'] = y_pred
