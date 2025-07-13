@@ -3,8 +3,10 @@ import sys
 
 import numpy as np
 import pandas as pd
-from sklearn.impute import KNNImputer
+from sklearn.impute import KNNImputer, SimpleImputer
 from sklearn.pipeline import Pipeline
+from sklearn.compose import ColumnTransformer
+from sklearn.preprocessing import OneHotEncoder, StandardScaler
 
 from ml_pipeline.logging.logger import logging
 from ml_pipeline.exception.exception import MLPipelineException
@@ -24,6 +26,7 @@ class DataTransformation:
             self.data_validation_artifact:DataValidationArtifact = data_validation_artifact
             self.data_transformation_config:DataTransformationConfig = data_transformation_config
             self.training_pipeline_config:TrainingPipelineConfig = training_pipeline_config
+            self.schema = read_yaml_file(file_path=training_pipeline_config.schema_file_path)
         except Exception as e:
             raise MLPipelineException(e)
 
@@ -43,27 +46,57 @@ class DataTransformation:
         except Exception as e:
             raise MLPipelineException(e)
     
-    @classmethod
-    def get_data_transformer_object(cls)->Pipeline:
-        """
-        Creates and returns a scikit-learn Pipeline object for data transformation.
-
-        This method initializes a KNNImputer with predefined parameters and encapsulates 
-        it within a scikit-learn Pipeline. The resulting pipeline can be used to impute 
-        missing values in the dataset.
-
-        Returns:
-            Pipeline: A scikit-learn Pipeline object containing a KNNImputer step.
-
-        Raises:
-            MLPipelineException: If an error occurs during the creation of the pipeline.
-        """
-        logging.info("Entered to get_data_transformer_object of Transformation class.")
+    def get_data_transformer_object(self) -> ColumnTransformer:
         try:
-            imputer: KNNImputer = KNNImputer(**DATA_TRANSFORMATION_IMPUTER_PARAMS)
-            logging.info("Initialize KNNImputer with {}".format(DATA_TRANSFORMATION_IMPUTER_PARAMS))
-            processor:Pipeline = Pipeline([("imputer", imputer)])
-            return processor
+            numerical_columns = self.schema.get("numerical_columns", [])
+            if numerical_columns is None:
+                numerical_columns = []
+            categorical_columns = self.schema.get("categorical_columns", [])
+            if categorical_columns is None:
+                categorical_columns = []
+            ignore_columns = self.schema.get("ignore_columns", [])
+            if ignore_columns is None:
+                ignore_columns = []
+            target_column = self.schema.get("target_column")
+
+            # Validate schema: target column should NOT be in feature lists
+            if target_column in numerical_columns:
+                raise MLPipelineException(
+                    f"Invalid schema: target column '{target_column}' should not be listed under 'numerical_columns'."
+                )
+            if target_column in categorical_columns:
+                raise MLPipelineException(
+                    f"Invalid schema: target column '{target_column}' should not be listed under 'categorical_columns'."
+                )
+
+            # Final list after removing target and ignored columns
+            numerical_columns = [col for col in numerical_columns if col not in ignore_columns and col != target_column]
+            categorical_columns = [col for col in categorical_columns if col not in ignore_columns and col != target_column]
+
+            logging.info(f"Using numerical columns: {numerical_columns}")
+            logging.info(f"Using categorical columns: {categorical_columns}")
+
+            # Pipelines
+            num_pipeline = Pipeline([
+                ("imputer", KNNImputer(**DATA_TRANSFORMATION_IMPUTER_PARAMS)),
+                ("scaler", StandardScaler())
+            ])
+
+            cat_pipeline = Pipeline([
+                ("imputer", SimpleImputer(strategy="most_frequent")),
+                ("encoder", OneHotEncoder(handle_unknown="ignore", sparse_output=False))
+            ])
+
+            preprocessor = ColumnTransformer(
+                transformers=[
+                    ("num", num_pipeline, numerical_columns),
+                    ("cat", cat_pipeline, categorical_columns)
+                ],
+                remainder='drop'
+            )
+
+            return preprocessor
+
         except Exception as e:
             raise MLPipelineException(e)
 
@@ -97,7 +130,7 @@ class DataTransformation:
                 logging.info("Test Target class values were remaped: {}".format(mapping))
 
             # Get imputer for filling missing features
-            preprocessor = DataTransformation.get_data_transformer_object()
+            preprocessor = self.get_data_transformer_object()
 
             preprocessor_object = preprocessor.fit(input_feature_train_df)
             transformed_input_train_feature = preprocessor_object.transform(input_feature_train_df)

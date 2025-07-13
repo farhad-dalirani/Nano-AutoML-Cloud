@@ -1,6 +1,16 @@
 import os
-
+import mlflow
 import mlflow.sklearn
+from mlflow.models import infer_signature
+
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import r2_score
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.ensemble import AdaBoostClassifier, GradientBoostingClassifier, RandomForestClassifier
+from sklearn.linear_model import LinearRegression
+from sklearn.ensemble import GradientBoostingRegressor, RandomForestRegressor, AdaBoostRegressor
+from sklearn.tree import DecisionTreeRegressor
 
 from ml_pipeline.logging.logger import logging
 from ml_pipeline.exception.exception import MLPipelineException
@@ -10,15 +20,8 @@ from ml_pipeline.entity.config_entity import ModelTrainerConfig
 
 from ml_pipeline.utils.ml_utils.model.estimator import MLModel
 from ml_pipeline.utils.main_utils.utils import save_object, load_object, load_numpy_array_data, evaluate_models
-from ml_pipeline.utils.ml_utils.metric.classification_metric import get_classification_scores
+from ml_pipeline.utils.ml_utils.metric.classification_metric import get_classification_scores, get_regression_scores
 
-from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import r2_score
-from sklearn.neighbors import KNeighborsClassifier
-from sklearn.tree import DecisionTreeClassifier
-from sklearn.ensemble import AdaBoostClassifier, GradientBoostingClassifier, RandomForestClassifier
-import mlflow
-from mlflow.models import infer_signature
 
 class ModelTrainer:
     def __init__(self, 
@@ -67,8 +70,6 @@ class ModelTrainer:
         ------
         ValueError
             If neither training nor testing metrics are provided.
-        NotImplementedError
-            If regression metrics logging is requested but not implemented.
         """
 
         if not train_metrics and not test_metrics:
@@ -114,7 +115,7 @@ class ModelTrainer:
 
     def _log_metrics_to_mlflow(self, metric_artifact: ModelMetricArtifact, prefix: str):
         """
-        Logs classification metrics to MLflow with a given prefix.
+        Logs classification/regression metrics to MLflow with a given prefix.
 
         Parameters:
         ----------
@@ -134,7 +135,13 @@ class ModelTrainer:
             mlflow.log_metrics(metrics)
 
         elif metric_artifact.regression_metrics:
-            raise NotImplementedError("Regression metrics logging is not implemented.")
+            rm = metric_artifact.regression_metrics
+            metrics = {
+                f"{prefix}_mse": rm.mse,
+                f"{prefix}_mae": rm.mae,
+                f"{prefix}_r2_score": rm.r2_score,
+            }
+            mlflow.log_metrics(metrics)
         else:
             raise ValueError("Provided metric artifact contains no valid metrics.")
     
@@ -187,7 +194,32 @@ class ModelTrainer:
                 }
             }
         elif self.model_trainer_config.model_type == 'regression':
-            NotImplementedError
+            models = {
+                "Linear Regression": LinearRegression(),
+                "Decision Tree": DecisionTreeRegressor(),
+                "Random Forest": RandomForestRegressor(),
+                "Gradient Boosting": GradientBoostingRegressor(verbose=1),
+                "AdaBoost": AdaBoostRegressor()
+            }
+
+            params = {
+                "Linear Regression": {},
+                "Decision Tree": {
+                    'criterion': ['squared_error', 'friedman_mse', 'absolute_error', 'poisson']
+                },
+                "Random Forest": {
+                    'n_estimators': [8, 16, 32, 64, 128]
+                },
+                "Gradient Boosting": {
+                    'learning_rate': [0.1, 0.01, 0.05, 0.001],
+                    'subsample': [0.6, 0.7, 0.75, 0.85, 0.9],
+                    'n_estimators': [8, 16, 32, 64, 128]
+                },
+                "AdaBoost": {
+                    'learning_rate': [0.1, 0.01, 0.001],
+                    'n_estimators': [8, 16, 32, 64, 128]
+                }
+            }
         else:
             raise ValueError('Selected ML Model Type [{}] is not correct!'.format(self.model_trainer_config.model_type))
 
@@ -217,7 +249,11 @@ class ModelTrainer:
             test_set_metrics = get_classification_scores(y_true=y_test, y_pred=y_test_pred)
             testset_model_metric_artifact = ModelMetricArtifact(classification_metrics=test_set_metrics) 
         elif self.model_trainer_config.model_type == 'regression':
-            NotImplementedError
+            train_set_metrics = get_regression_scores(y_true=y_train, y_pred=y_train_pred)
+            trainset_model_metric_artifact = ModelMetricArtifact(regression_metrics=train_set_metrics)
+
+            test_set_metrics = get_regression_scores(y_true=y_test, y_pred=y_test_pred)
+            testset_model_metric_artifact = ModelMetricArtifact(regression_metrics=test_set_metrics)
         else:
             raise ValueError('Selected ML Model Type [{}] is not correct!'.format(self.model_trainer_config.model_type))
 

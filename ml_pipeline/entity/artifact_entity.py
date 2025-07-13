@@ -29,7 +29,7 @@ class ClassificationMetricArtifact:
 
 @dataclass
 class RegressionMetricArtifact:
-    rmse: float
+    mse: float
     mae: float
     r2_score: float
 
