@@ -91,4 +91,9 @@ numerical_columns:
   - google_index
   - links_pointing_to_page
   - statistical_report
-  - result
+
+categorical_columns:
+  # No categorical columns for this dataset
+  
+ignore_columns:
+  # No categorical columns for this dataset

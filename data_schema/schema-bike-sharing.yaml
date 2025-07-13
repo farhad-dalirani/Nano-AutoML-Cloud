@@ -48,4 +48,9 @@ numerical_columns:
   - atemp
   - hum
   - windspeed
-  - cnt
+
+categorical_columns:
+  # No categorical columns for this dataset
+
+ignore_columns:
+  - dteday
