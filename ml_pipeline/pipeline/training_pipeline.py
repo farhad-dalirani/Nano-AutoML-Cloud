@@ -36,11 +36,15 @@ class TrainingPipeline:
     Each step produces an artifact which is passed to the next stage.
     """
 
-    def __init__(self):
+    def __init__(self, schema_file_path: str):
         """
         Initializes the TrainingPipeline with a general TrainingPipelineConfig.
+
+        Args:
+        schema_file_path (str): Path to the schema file (.yaml or .yml) containing
+                                dataset column definitions, target column, and task type.
         """
-        self.training_pipeline_config = TrainingPipelineConfig()
+        self.training_pipeline_config = TrainingPipelineConfig(schema_file_path=schema_file_path)
 
     def start_data_ingestion(self):
         """

@@ -5,7 +5,6 @@ from scipy.stats import ks_2samp
 
 from ml_pipeline.entity.artifact_entity import DataIngestionArtifact, DataValidationArtifact
 from ml_pipeline.entity.config_entity import DataValidationConfig, TrainingPipelineConfig
-from ml_pipeline.constants.training_pipeline import SCHEMA_FILE_PATH
 from ml_pipeline.utils.main_utils.utils import read_yaml_file, write_yaml_file
 from ml_pipeline.exception.exception import MLPipelineException
 from ml_pipeline.logging.logger import logging

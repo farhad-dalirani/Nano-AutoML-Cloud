@@ -96,6 +96,7 @@ class DataIngestion:
             os.makedirs(dir_path, exist_ok=True)
             dataframe.to_csv(feature_store_file_path, index=False, header=True)
             
+            logging.info("Dataset name is {}".format(self.data_ingestion_config.collection_name))
             logging.info("Retrieved data was saved locally in feature store.")
 
             return dataframe

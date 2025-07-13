@@ -18,11 +18,12 @@ class TrainingPipelineConfig:
         timestamp (str): String timestamp used for directory versioning (format: MM_DD_YYYY_HH_MM_SS).
         target_column (str): Name of the target (label) column in the dataset.
         task_type (str): Type of machine learning task; must be either 'classification' or 'regression'.
+        dataset_name (str): Name of dataset that model will be trained on.
 
     Raises:
         ValueError: If `task_type` is not one of ['classification', 'regression'].
     """
-    def __init__(self, timestamp=datetime.now()):
+    def __init__(self, schema_file_path:str, timestamp=datetime.now()):
         timestamp=timestamp.strftime("%m_%d_%Y_%H_%M_%S")
         self.pipeline_name=training_pipeline.PIPELINE_NAME
         self.artifact_name=training_pipeline.ARTIFACT_DIR
@@ -30,19 +31,27 @@ class TrainingPipelineConfig:
         self.model_dir=os.path.join("final_model")
         self.timestamp: str=timestamp
         
-        self.schema_file_path = training_pipeline.SCHEMA_FILE_PATH
+        self.schema_file_path = schema_file_path
 
-        # Load schema from YAML
+        # Validate schema file
+        if not schema_file_path.endswith((".yaml", ".yml")):
+            raise ValueError(f"Schema file must end with .yaml or .yml, but got: {schema_file_path}")  
+        # Check the schema file exists
         if not os.path.exists(self.schema_file_path):
             raise FileNotFoundError(f"Schema file not found at: {self.schema_file_path}")
 
+        # Open schema file
         schema = read_yaml_file(file_path=self.schema_file_path)
 
         self.target_column = schema.get("target_column")
         self.task_type = schema.get("task_type")
+        self.dataset_name = schema.get("DB_collection_name")
 
         if not self.target_column:
             raise ValueError("Missing or empty 'target_column' in schema.")
+        
+        if not self.dataset_name:
+            raise ValueError("Missing or empty 'DB_collection_name' in schema.")
 
         if self.task_type not in ['classification', 'regression']:
             raise ValueError(f'Task type must be "classification" or "regression", but got: {self.task_type}')
@@ -50,16 +59,26 @@ class TrainingPipelineConfig:
 
 class DataIngestionConfig:
     """
-    Configuration class for managing data ingestion settings.
+    Configuration class for setting up the training pipeline.
+
+    This class initializes and manages key paths and settings used during the training process,
+    such as directories for artifacts and models, the target column, and the type of ML task.
 
     Attributes:
-        data_ingestion_dir (str): Root directory for all data ingestion-related files.
-        feature_store_file_path (str): Path to the feature store file used in the pipeline.
-        training_file_path (str): Path to the training dataset file.
-        testing_file_path (str): Path to the testing dataset file.
-        train_test_split_ratio (float): Ratio used to split the dataset into training and testing subsets.
-        collection_name (str): Name of the MongoDB collection containing the raw data.
-        database_name (str): Name of the MongoDB database containing the collection.
+        pipeline_name (str): Name of the training pipeline (from constants).
+        artifact_name (str): Root directory name for storing all pipeline artifacts.
+        artifact_dir (str): Full path to the time-stamped artifact directory.
+        model_dir (str): Directory path where the final model will be saved.
+        timestamp (str): String timestamp used for directory versioning (format: MM_DD_YYYY_HH_MM_SS).
+        schema_file_path (str): Path to the YAML/YML schema file.
+        target_column (str): Name of the target (label) column in the dataset.
+        task_type (str): Type of machine learning task; must be either 'classification' or 'regression'.
+
+    Raises:
+        FileNotFoundError: If the schema file does not exist.
+        ValueError: If `schema_file_path` does not end with .yaml or .yml.
+        ValueError: If `task_type` is not one of ['classification', 'regression'].
+        ValueError: If `target_column` is missing in the schema.
     """
     def __init__(self, training_pipeline_config:TrainingPipelineConfig):
         self.data_ingestion_dir:str=os.path.join(
@@ -183,9 +202,11 @@ class ModelTrainerConfig:
         expected_accuracy (float): Minimum accuracy threshold that the model must achieve.
         overfitting_underfitting_threshold (float): Threshold used to detect overfitting or underfitting
                                                     based on the difference between training and testing performance.
+        dataset_name (str): name of dataset that model is trained on.
         model_type (str): Type of model to be trained, either 'classification' or 'regression'.
     """
     def __init__(self,training_pipeline_config:TrainingPipelineConfig):
+        self.dataset_name = training_pipeline_config.dataset_name
         self.model_trainer_dir: str = os.path.join(
             training_pipeline_config.artifact_dir, 
             training_pipeline.MODEL_TRAINER_DIR_NAME
@@ -197,8 +218,10 @@ class ModelTrainerConfig:
         )
         self.final_trained_model_file_path: str = os.path.join(
             training_pipeline.FINAL_MODEL_DIR,
+            self.dataset_name,
             training_pipeline.MODEL_FILE_NAME
         )
         self.expected_accuracy: float = training_pipeline.MODEL_TRAINER_EXPECTED_SCORE
         self.overfitting_underfitting_threshold = training_pipeline.MODEL_TRAINER_OVER_FIITING_UNDER_FITTING_THRESHOLD
         self.model_type = training_pipeline_config.task_type
+        

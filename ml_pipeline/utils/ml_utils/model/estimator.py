@@ -24,13 +24,14 @@ class MLModel:
             Transforms input features using the preprocessor and generates predictions using the model.
     """
 
-    def __init__(self, preprocessor, model):
+    def __init__(self, preprocessor, model, model_task: str):
         """
         Initializes the MLModel with a preprocessor and a trained model.
 
         Args:
             preprocessor: An object with a `transform` method for preprocessing input data.
             model: A trained model with a `predict` method for generating predictions.
+            model_task: type of task that model does: classification or regression
 
         Raises:
             MLPipelineException: If an error occurs during initialization.
@@ -38,6 +39,7 @@ class MLModel:
         try:
             self.preprocessor = preprocessor
             self.model = model
+            self.model_task = model_task
         except Exception as e:
             raise MLPipelineException(e)
         

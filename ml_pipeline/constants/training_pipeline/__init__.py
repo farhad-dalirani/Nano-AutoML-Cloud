@@ -15,6 +15,9 @@ Defining common constant variables for training pipeline
 # Name of the overall pipeline
 PIPELINE_NAME: str = "MLPipeline"
 
+# Directory of schema files
+SCHEMA_DIR = 'data_schema'
+
 # Directory where all pipeline artifacts (e.g., models, metrics, logs) will be stored
 ARTIFACT_DIR: str = "Artifacts"
 FILE_NAME: str = "input_data.csv"
@@ -22,9 +25,6 @@ FILE_NAME: str = "input_data.csv"
 # Names of the train and test split files
 TRAIN_FILE_NAME: str = "train.csv"
 TEST_FILE_NAME: str = "test.csv"
-
-# Path to the data schema YAML file
-SCHEMA_FILE_PATH = os.path.join("data_schema", "schema.yaml")
 
 # Directory where the final trained models will be saved
 SAVED_MODEL_DIR =os.path.join("saved_models")

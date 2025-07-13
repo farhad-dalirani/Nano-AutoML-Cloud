@@ -1,0 +1,51 @@
+# MongoDB database name
+DB_name: "MLPROJECT_DB"
+
+# MongoDB collection name for storing the dataset
+DB_collection_name: "UCI_Bike_Sharing"
+
+# Type of machine learning task: 'classification' or 'regression'
+task_type: regression 
+
+# Schema definition for dataset columns
+columns:
+  - dteday: String
+  - season: Int32
+  - yr: Int32
+  - mnth: Int32
+  - hr: Int32
+  - holiday: Int32
+  - weekday: Int32
+  - workingday: Int32
+  - weathersit: Int32
+  - temp: Double
+  - atemp: Double
+  - hum: Double
+  - windspeed: Double
+  - cnt: Int32
+
+# Name of the target/output column
+target_column: cnt
+
+# This is dataset-dependent — use it if you need to map specific
+# classes in your dataset to others.
+
+# Flag to enable or disable mapping of target class values during data transformation.
+# If true, the mapping defined below will be applied to the target column.
+DATA_TRANSFORMATION_ENABLE_TARGET_CLASS_MAPPING: false
+
+# All columns treated as numerical features for modeling
+numerical_columns:
+  - season
+  - yr
+  - mnth
+  - hr
+  - holiday
+  - weekday
+  - workingday
+  - weathersit
+  - temp
+  - atemp
+  - hum
+  - windspeed
+  - cnt

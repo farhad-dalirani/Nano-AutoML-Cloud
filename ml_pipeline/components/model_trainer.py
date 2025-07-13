@@ -42,6 +42,7 @@ class ModelTrainer:
     
     def track_mlflow(self,
                      best_model,
+                     dataset_name: str,
                      train_metrics: ModelMetricArtifact = None,
                      test_metrics: ModelMetricArtifact = None,
                      input_example=None):
@@ -72,6 +73,11 @@ class ModelTrainer:
 
         if not train_metrics and not test_metrics:
             raise ValueError("At least one of train_metrics or test_metrics must be provided.")
+
+        if not isinstance(dataset_name, str):
+            raise ValueError(f"`dataset_name` must be a string, but got {type(dataset_name).__name__}")
+
+        mlflow.set_experiment(f"{dataset_name}-models") 
 
         with mlflow.start_run():
             if train_metrics:
@@ -220,6 +226,7 @@ class ModelTrainer:
 
         # Track expriment with MLFLOW
         self.track_mlflow(
+            dataset_name=self.model_trainer_config.dataset_name,
             best_model=best_model,
             train_metrics = trainset_model_metric_artifact,
             test_metrics = testset_model_metric_artifact,
@@ -234,7 +241,11 @@ class ModelTrainer:
         os.makedirs(model_dir_path, exist_ok=True)
 
         # Create a pipeline object containing both preprocessor and trained model
-        final_ml_model = MLModel(preprocessor=preprocessor, model=best_model) 
+        final_ml_model = MLModel(
+            preprocessor=preprocessor, 
+            model=best_model, 
+            model_task=self.model_trainer_config.model_type
+        ) 
 
         # Save the final ML model to disk in its experiment folder
         save_object(

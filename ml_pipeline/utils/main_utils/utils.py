@@ -3,6 +3,7 @@ import sys
 import pickle
 import yaml
 import numpy as np
+from typing import Dict
 
 from sklearn.metrics import r2_score, f1_score
 from sklearn.model_selection import GridSearchCV
@@ -140,7 +141,40 @@ def load_numpy_array_data(file_path: str) -> np.array:
         return np.load(file_path)
     except Exception as e:
         raise MLPipelineException(e)
-    
+
+
+def get_dataset_schema_mapping(schema_dir: str) -> Dict[str, str]:
+    """
+    Scans the schema directory for YAML/YML files and maps each dataset
+    (identified by 'DB_collection_name') to its corresponding schema filename.
+
+    Args:
+        schema_dir (str): Path to the directory containing schema files.
+
+    Returns:
+        Dict[str, str]: Dictionary mapping dataset names (DB_collection_name)
+                        to schema filenames.
+
+    Raises:
+        Exception: If any schema file is unreadable or missing the required field.
+    """
+    collection_names = {}
+
+    for filename in os.listdir(schema_dir):
+        if filename.endswith(('.yaml', '.yml')):
+            filepath = os.path.join(schema_dir, filename)
+            try:
+                content = read_yaml_file(file_path=filepath)
+                collection_name = content.get("DB_collection_name")
+                if collection_name:
+                    collection_names[collection_name] = filename
+            except Exception as e:
+                raise Exception(
+                    f"Failed to read or parse '{filename}': {str(e)}"
+                )
+
+    return collection_names
+
 
 def evaluate_models(X_train, y_train, X_test, y_test, models, params, task_type="classification"):
     try:

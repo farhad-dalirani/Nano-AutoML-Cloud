@@ -1,5 +1,6 @@
 import os
 import fastapi
+from typing import Dict, List
 import certifi
 import pymongo
 import pandas as pd
@@ -15,7 +16,9 @@ from ml_pipeline.logging.logger import logging
 from ml_pipeline.exception.exception import MLPipelineException
 from ml_pipeline.pipeline.training_pipeline import TrainingPipeline
 from ml_pipeline.pipeline.batch_prediction import batch_data_prediction
-from ml_pipeline.utils.main_utils.utils import load_object
+from ml_pipeline.utils.main_utils.utils import read_yaml_file
+from ml_pipeline.constants.training_pipeline import SCHEMA_DIR
+from ml_pipeline.utils.main_utils.utils import get_dataset_schema_mapping
 
 from dotenv import load_dotenv
 load_dotenv()
@@ -48,30 +51,84 @@ async def index():
     """
     return RedirectResponse(url='/docs')
 
-@app.get('/train', status_code=status.HTTP_200_OK)
-async def run_train_pipeline():
+@app.get('/dataset-names', status_code=status.HTTP_200_OK)
+async def get_dataset_names() -> Dict[str, List[str]]:
     """
-    Endpoint to trigger the training pipeline for the machine learning model.
+    FastAPI endpoint to return a list of available dataset names.
 
-    This endpoint initiates the training process by creating and running
-    a TrainingPipeline instance. If the training fails, it raises a 500 HTTP error.
-
-    Raises:
-        HTTPException: If the training pipeline fails to run.
+    These dataset names are extracted from schema files located in the schema directory.
+    Each name corresponds to a 'DB_collection_name' defined in a YAML/YML schema file.
 
     Returns:
-        None: On successful training, returns an empty response with status 200.
+        dict: A dictionary with a single key 'datasets' that maps to a list of dataset names.
+
+              Example:
+              {
+                  "datasets": ["bike_sharing_daily", "phishing_sites"]
+              }
+
+    Raises:
+        HTTPException (500): If any schema file is corrupted or missing required fields.
     """
     try:
-        train_pipeline=TrainingPipeline()
-        train_pipeline.run()
+        collection_map = get_dataset_schema_mapping(SCHEMA_DIR)
+        return {"datasets": list(collection_map.keys())}
     except Exception as e:
-        logging.error(e)
+        logging.error(f"Error retrieving dataset names: {e}")
         raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, 
-            detail="Initiating train pipeline was failed."
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to retrieve dataset names due to schema file issues."
         )
+    
+@app.get('/train/{database_name}', status_code=status.HTTP_200_OK)
+async def run_train_pipeline(database_name: str):
+    """
+    Endpoint to trigger the training pipeline for a given database (dataset).
 
+    The server scans the schema directory for all available schema files and checks
+    if any contain the given `database_name` as the value of `DB_collection_name`.
+
+    If found, the corresponding schema file is used to initiate the training pipeline.
+
+    Args:
+        database_name (str): The name of the MongoDB collection (dataset) as defined
+                             in the `DB_collection_name` field of a schema file.
+
+    Returns:
+        dict: A message confirming successful training, or an error if not found or failed.
+
+    Raises:
+        HTTPException (404): If the provided database name does not match any known schema.
+        HTTPException (500): If the training pipeline fails to run.
+    """
+    try:
+        # Step 1: Load map of {DB_collection_name: schema_filename}
+        dataset_mapping = get_dataset_schema_mapping(SCHEMA_DIR)
+
+        # Step 2: Check if requested DB name exists
+        if database_name not in dataset_mapping:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Database name '{database_name}' not found in schema definitions."
+            )
+
+        # Step 3: Use matching schema to run pipeline
+        schema_file_path = os.path.join(SCHEMA_DIR, dataset_mapping[database_name])
+        train_pipeline = TrainingPipeline(schema_file_path=schema_file_path)
+        train_pipeline.run()
+
+        return {"message": f"Training pipeline successfully executed for database '{database_name}'."}
+
+    except HTTPException as http_err:
+        raise http_err  # propagate 404
+
+    except Exception as e:
+        logging.error(f"Training failed for '{database_name}': {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Training pipeline execution failed due to internal error."
+        )
+    
 @app.post('/predict', status_code=status.HTTP_200_OK)
 async def predict(request: Request, file: UploadFile=File(...)):  
     """
@@ -118,7 +175,6 @@ async def predict(request: Request, file: UploadFile=File(...)):
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, 
             detail="Batch prediction was failed."
         )
-
 
 if __name__ == '__main__':
     app_run(app=app, host="localhost", port=8000)
