@@ -1,8 +1,8 @@
 # MongoDB database name
-database_name: "MLPROJECT_DB"
+DB_name: "MLPROJECT_DB"
 
 # MongoDB collection name for storing the dataset
-collection_name: "MLData"
+DB_collection_name: "UCI_Phishing_Websites"
 
 # Type of machine learning task: 'classification' or 'regression'
 task_type: classification 

@@ -17,10 +17,6 @@ from ml_pipeline.pipeline.training_pipeline import TrainingPipeline
 from ml_pipeline.pipeline.batch_prediction import batch_data_prediction
 from ml_pipeline.utils.main_utils.utils import load_object
 
-
-from ml_pipeline.constants.training_pipeline import DATA_INGESTION_COLLECTION_NAME
-from ml_pipeline.constants.training_pipeline import DATA_INGESTION_DATABASE_NAME
-
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -28,9 +24,6 @@ ca = certifi.where()
 mongo_db_url = os.getenv("MONGO_DB_URL")
 
 client = pymongo.MongoClient(host=mongo_db_url, tlsCAFile=ca)
-
-database = client[DATA_INGESTION_DATABASE_NAME]
-collection = client[DATA_INGESTION_COLLECTION_NAME]
 
 templates = Jinja2Templates(directory="./templates")
 

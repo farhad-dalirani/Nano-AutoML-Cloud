@@ -19,20 +19,20 @@ MONGO_DB_URL = os.getenv("MONGO_DB_URL")
 
 ca = certifi.where()
 
-class NetworkDataExtract:
-    def __init__(self):
+class DataExtract:
+    def __init__(self, uci_id: int):
         """
-        Initializes the NetworkDataExtract object.
+        Initializes the DataExtract object.
         Currently a placeholder for future setup or logging.
         """
         try:
-            pass
+            self.uci_id = uci_id
         except Exception as e:
             raise MLPipelineException(e)
 
     def extract_phishing_records(self, ):
         """
-        Fetches the Phishing Websites dataset from the UCI repository, processes it into a DataFrame,
+        Fetches the dataset from the UCI repository, processes it into a DataFrame,
         and returns the data as a list of JSON-like dictionary records.
 
         Returns:
@@ -48,7 +48,7 @@ class NetworkDataExtract:
         """
         try:
             # Get "Phishing Websites" dataset from UCI repository
-            phishing_websites = fetch_ucirepo(id=327) 
+            phishing_websites = fetch_ucirepo(id=self.uci_id) 
   
             # Data (as pandas dataframes) 
             X = phishing_websites.data.features 
@@ -103,17 +103,29 @@ class NetworkDataExtract:
 
 # Main ETL execution
 if __name__ == '__main__':
-    DATABASE="MLPROJECT_DB"
-    Collection="MLData"
+
+    # Database name
+    database_name="MLPROJECT_DB"
+
+    # Various example datasets
+    datasets = {
+        "UCI-Phishing-Websites-Classification": {"uci-id": 327, "collection-name": "UCI_Phishing_Websites"},
+        "UCI-Bike-Sharing-Regression": {"uci-id": 275, "collection-name": "UCI_Bike_Sharing"},
+    }
     
-    # Create an instance of the data extraction class
-    networkobj=NetworkDataExtract()
+    for key in datasets:
+        dataset_name = key
+        uci_id = datasets[key]["uci-id"]
+        DB_collection_name = datasets[key]["collection-name"]
 
-    # Extract phishing dataset records from UCI repository
-    records=networkobj.extract_phishing_records()
+        # Create an instance of the data extraction class
+        networkobj=DataExtract(uci_id=uci_id)
 
-    # Load the extracted records into the specified MongoDB collection
-    no_of_records=networkobj.load_data_to_mongodb(records=records, database=DATABASE, collection=Collection)
+        # Extract dataset records from UCI repository
+        records=networkobj.extract_phishing_records()
 
-    # Output the number of records successfully inserted
-    print(no_of_records)
+        # Load the extracted records into the specified MongoDB collection
+        no_of_records=networkobj.load_data_to_mongodb(records=records, database=database_name, collection=DB_collection_name)
+
+        # Output the number of records successfully inserted
+        print(no_of_records)

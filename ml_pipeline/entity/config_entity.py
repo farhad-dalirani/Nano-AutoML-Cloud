@@ -83,12 +83,12 @@ class DataIngestionConfig:
         self.train_test_split_ratio: float = training_pipeline.DATA_INGESTION_TRAIN_TEST_SPLIT_RATION
         
         schema = read_yaml_file(file_path=training_pipeline_config.schema_file_path)
-        required_keys = ["database_name", "collection_name"]
+        required_keys = ["DB_name", "DB_collection_name"]
         for key in required_keys:
             if key not in schema:
                 raise KeyError(f"Missing required configuration key in schema file: '{key}'")
-        self.database_name: str = schema["database_name"]
-        self.collection_name: str = schema["collection_name"]
+        self.database_name: str = schema["DB_name"]
+        self.collection_name: str = schema["DB_collection_name"]
 
 
 class DataValidationConfig:
