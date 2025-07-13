@@ -1,0 +1,41 @@
+# MongoDB database name
+DB_name: "MLPROJECT_DB"
+
+# MongoDB collection name for storing the dataset
+DB_collection_name: "UCI_Iris"
+
+# Type of machine learning task: 'classification' or 'regression'
+task_type: classification 
+
+# Schema definition for dataset columns
+columns:
+  - "sepal length": float64
+  - "sepal width": float64
+  - "petal length": float64
+  - "petal width": float64
+  - "class": object
+
+# Name of the target/output column
+target_column: "class"
+
+# Flag to enable or disable mapping of target class values during data transformation.
+DATA_TRANSFORMATION_ENABLE_TARGET_CLASS_MAPPING: true
+
+# Dictionary that defines how to map target class values.
+DATA_TRANSFORMATION_TARGET_CLASS_MAPPING:
+  "Iris-setosa": 0
+  "Iris-versicolor": 1
+  "Iris-virginica": 2
+
+# All columns treated as numerical features for modeling
+numerical_columns:
+  - "sepal length"
+  - "sepal width"
+  - "petal length"
+  - "petal width"
+
+categorical_columns:
+  # No categorical columns for this dataset
+
+ignore_columns:
+  # No columns to ignore for this dataset

@@ -19,9 +19,9 @@ def get_classification_scores(y_true, y_pred)->ClassificationMetricArtifact:
         MLPipelineException: If an error occurs while calculating the classification metrics.
     """
     try:
-        model_f1_score = f1_score(y_true=y_true, y_pred=y_pred)
-        model_recall_score = recall_score(y_true=y_true, y_pred=y_pred)
-        model_precision_score=precision_score(y_true=y_true, y_pred=y_pred)
+        model_f1_score = f1_score(y_true=y_true, y_pred=y_pred, average='weighted')
+        model_recall_score = recall_score(y_true=y_true, y_pred=y_pred, average='weighted')
+        model_precision_score = precision_score(y_true=y_true, y_pred=y_pred, average='weighted')
 
         classification_metrics = ClassificationMetricArtifact(
             f1_score=model_f1_score,

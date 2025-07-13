@@ -111,6 +111,7 @@ if __name__ == '__main__':
     datasets = {
         "UCI-Phishing-Websites-Classification": {"uci-id": 327, "collection-name": "UCI_Phishing_Websites"},
         "UCI-Bike-Sharing-Regression": {"uci-id": 275, "collection-name": "UCI_Bike_Sharing"},
+        "UCI-Iris": {"uci-id": 53, "collection-name": "UCI_Iris"}
     }
     
     for key in datasets:
