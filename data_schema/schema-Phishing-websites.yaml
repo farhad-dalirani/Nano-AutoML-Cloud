@@ -59,7 +59,7 @@ DATA_TRANSFORMATION_ENABLE_TARGET_CLASS_MAPPING: true
 DATA_TRANSFORMATION_TARGET_CLASS_MAPPING:
   -1: 0
 
-# All columns treated as numerical features for modeling
+# All columns treated as numerical features for modeling, the target column should be excluded.
 numerical_columns:
   - having_ip_address
   - url_length
@@ -92,6 +92,7 @@ numerical_columns:
   - links_pointing_to_page
   - statistical_report
 
+# All columns treated as categorical features for modeling, the target column should be excluded.
 categorical_columns:
   # No categorical columns for this dataset
   

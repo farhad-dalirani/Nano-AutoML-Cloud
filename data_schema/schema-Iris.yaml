@@ -27,13 +27,14 @@ DATA_TRANSFORMATION_TARGET_CLASS_MAPPING:
   "Iris-versicolor": 1
   "Iris-virginica": 2
 
-# All columns treated as numerical features for modeling
+# All columns treated as numerical features for modeling, the target column should be excluded.
 numerical_columns:
   - "sepal length"
   - "sepal width"
   - "petal length"
   - "petal width"
 
+# All columns treated as categorical features for modeling, the target column should be excluded.
 categorical_columns:
   # No categorical columns for this dataset
 

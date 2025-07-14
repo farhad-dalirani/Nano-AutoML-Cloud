@@ -34,7 +34,10 @@ target_column: cnt
 # If true, the mapping defined below will be applied to the target column.
 DATA_TRANSFORMATION_ENABLE_TARGET_CLASS_MAPPING: false
 
-# All columns treated as numerical features for modeling
+DATA_TRANSFORMATION_TARGET_CLASS_MAPPING:
+  # No target class remapping for this dataset
+
+# All columns treated as numerical features for modeling, the target column should be excluded.
 numerical_columns:
   - season
   - yr
@@ -49,6 +52,7 @@ numerical_columns:
   - hum
   - windspeed
 
+# All columns treated as categorical features for modeling, the target column should be excluded.
 categorical_columns:
   # No categorical columns for this dataset
 
