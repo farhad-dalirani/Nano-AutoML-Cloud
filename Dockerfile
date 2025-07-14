@@ -1,5 +1,5 @@
 # Use the official Python 3.10 slim image as the base image (lightweight Debian-based image)
-FROM python:3.10-slim-buster
+FROM python:3.10-slim-bullseye
 
 # Set the working directory inside the container to /app
 WORKDIR /app
