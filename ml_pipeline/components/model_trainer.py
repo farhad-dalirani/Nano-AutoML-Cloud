@@ -5,26 +5,48 @@ from mlflow.models import infer_signature
 
 from sklearn.linear_model import LogisticRegression
 from sklearn.tree import DecisionTreeClassifier
-from sklearn.ensemble import AdaBoostClassifier, GradientBoostingClassifier, RandomForestClassifier
+from sklearn.ensemble import (
+    AdaBoostClassifier,
+    GradientBoostingClassifier,
+    RandomForestClassifier,
+)
 from sklearn.linear_model import LinearRegression
-from sklearn.ensemble import GradientBoostingRegressor, RandomForestRegressor, AdaBoostRegressor
+from sklearn.ensemble import (
+    GradientBoostingRegressor,
+    RandomForestRegressor,
+    AdaBoostRegressor,
+)
 from sklearn.tree import DecisionTreeRegressor
 
 from ml_pipeline.logging.logger import logging
 from ml_pipeline.exception.exception import MLPipelineException
 
-from ml_pipeline.entity.artifact_entity import DataTransformationArtifact, ModelMetricArtifact, ModelTrainerArtifact
+from ml_pipeline.entity.artifact_entity import (
+    DataTransformationArtifact,
+    ModelMetricArtifact,
+    ModelTrainerArtifact,
+)
 from ml_pipeline.entity.config_entity import ModelTrainerConfig
 
 from ml_pipeline.utils.ml_utils.model.estimator import MLModel
-from ml_pipeline.utils.main_utils.utils import save_object, load_object, load_numpy_array_data, evaluate_models
-from ml_pipeline.utils.ml_utils.metric.classification_metric import get_classification_scores, get_regression_scores
+from ml_pipeline.utils.main_utils.utils import (
+    save_object,
+    load_object,
+    load_numpy_array_data,
+    evaluate_models,
+)
+from ml_pipeline.utils.ml_utils.metric.classification_metric import (
+    get_classification_scores,
+    get_regression_scores,
+)
 
 
 class ModelTrainer:
-    def __init__(self, 
-                 model_trainer_config: ModelTrainerConfig, 
-                 data_transform_artifact:DataTransformationArtifact):
+    def __init__(
+        self,
+        model_trainer_config: ModelTrainerConfig,
+        data_transform_artifact: DataTransformationArtifact,
+    ):
         """
         Initializes the ModelTrainer with configuration and data transformation artifacts.
 
@@ -40,13 +62,15 @@ class ModelTrainer:
             self.data_transform_artifact = data_transform_artifact
         except Exception as e:
             raise MLPipelineException(e)
-    
-    def track_mlflow(self,
-                     best_model,
-                     dataset_name: str,
-                     train_metrics: ModelMetricArtifact = None,
-                     test_metrics: ModelMetricArtifact = None,
-                     input_example=None):
+
+    def track_mlflow(
+        self,
+        best_model,
+        dataset_name: str,
+        train_metrics: ModelMetricArtifact = None,
+        test_metrics: ModelMetricArtifact = None,
+        input_example=None,
+    ):
         """
         Logs training and testing metrics, along with the model, to MLflow.
 
@@ -71,12 +95,16 @@ class ModelTrainer:
         """
 
         if not train_metrics and not test_metrics:
-            raise ValueError("At least one of train_metrics or test_metrics must be provided.")
+            raise ValueError(
+                "At least one of train_metrics or test_metrics must be provided."
+            )
 
         if not isinstance(dataset_name, str):
-            raise ValueError(f"`dataset_name` must be a string, but got {type(dataset_name).__name__}")
+            raise ValueError(
+                f"`dataset_name` must be a string, but got {type(dataset_name).__name__}"
+            )
 
-        mlflow.set_experiment(f"{dataset_name}-models") 
+        mlflow.set_experiment(f"{dataset_name}-models")
 
         with mlflow.start_run():
             if train_metrics:
@@ -89,7 +117,9 @@ class ModelTrainer:
             if input_example is not None:
                 try:
                     output_example = best_model.predict(input_example)
-                    signiture = infer_signature(model_input=input_example, model_output=output_example)
+                    signiture = infer_signature(
+                        model_input=input_example, model_output=output_example
+                    )
                 except Exception as e:
                     logging.info("Failed to infer model signiture.")
 
@@ -98,17 +128,19 @@ class ModelTrainer:
             mlflow.log_param("model_type", model_class_name)
 
             # Log model hyperparameters
-            if hasattr(best_model, 'get_params'):
+            if hasattr(best_model, "get_params"):
                 params = best_model.get_params()
                 mlflow.log_params(params)
             else:
-                logging.warning(f"Model {model_class_name} does not support 'get_params'.")
+                logging.warning(
+                    f"Model {model_class_name} does not support 'get_params'."
+                )
 
             mlflow.sklearn.log_model(
-                sk_model=best_model, 
+                sk_model=best_model,
                 name="model",
                 signature=signiture,
-                input_example=input_example
+                input_example=input_example,
             )
 
     def _log_metrics_to_mlflow(self, metric_artifact: ModelMetricArtifact, prefix: str):
@@ -142,11 +174,10 @@ class ModelTrainer:
             mlflow.log_metrics(metrics)
         else:
             raise ValueError("Provided metric artifact contains no valid metrics.")
-    
 
     def train_model(self, X_train, y_train, X_test, y_test):
         """
-        Trains a set of machine learning models, evaluates them, selects the best model, 
+        Trains a set of machine learning models, evaluates them, selects the best model,
         and saves it along with the data preprocessor.
 
         Args:
@@ -163,149 +194,182 @@ class ModelTrainer:
             MLPipelineException: If any error occurs during model training.
         """
         # Define supported models and their hyperparameters for classification tasks
-        if self.model_trainer_config.model_type == 'classification':
+        if self.model_trainer_config.model_type == "classification":
             models = {
-                    "Random Forest": RandomForestClassifier(verbose=1),
-                    "Decision Tree": DecisionTreeClassifier(),
-                    "Gradient Boosting": GradientBoostingClassifier(verbose=1),
-                    "Logistic Regression": LogisticRegression(verbose=1),
-                    "AdaBoost": AdaBoostClassifier(),
-                }
-            
-            # List of hyper-parameters for tuning
-            params={
-                "Decision Tree": {
-                    'criterion':['gini', 'entropy', 'log_loss'],
-                },
-                "Random Forest":{
-                    'n_estimators': [8,16,32,128,256]
-                },
-                "Gradient Boosting":{
-                    'learning_rate':[.1,.01,.05,.001],
-                    'subsample':[0.6,0.7,0.75,0.85,0.9],
-                    'n_estimators': [8,16,32,64,128,256]
-                },
-                "Logistic Regression":{},
-                "AdaBoost":{
-                    'learning_rate':[.1,.01,.001],
-                    'n_estimators': [8,16,32,64,128,256]
-                }
+                "Random Forest": RandomForestClassifier(verbose=1),
+                "Decision Tree": DecisionTreeClassifier(),
+                "Gradient Boosting": GradientBoostingClassifier(verbose=1),
+                "Logistic Regression": LogisticRegression(verbose=1),
+                "AdaBoost": AdaBoostClassifier(),
             }
-        elif self.model_trainer_config.model_type == 'regression':
+
+            # List of hyper-parameters for tuning
+            params = {
+                "Decision Tree": {
+                    "criterion": ["gini", "entropy", "log_loss"],
+                },
+                "Random Forest": {"n_estimators": [8, 16, 32, 128, 256]},
+                "Gradient Boosting": {
+                    "learning_rate": [0.1, 0.01, 0.05, 0.001],
+                    "subsample": [0.6, 0.7, 0.75, 0.85, 0.9],
+                    "n_estimators": [8, 16, 32, 64, 128, 256],
+                },
+                "Logistic Regression": {},
+                "AdaBoost": {
+                    "learning_rate": [0.1, 0.01, 0.001],
+                    "n_estimators": [8, 16, 32, 64, 128, 256],
+                },
+            }
+        elif self.model_trainer_config.model_type == "regression":
             models = {
                 "Linear Regression": LinearRegression(),
                 "Decision Tree": DecisionTreeRegressor(),
                 "Random Forest": RandomForestRegressor(),
                 "Gradient Boosting": GradientBoostingRegressor(verbose=1),
-                "AdaBoost": AdaBoostRegressor()
+                "AdaBoost": AdaBoostRegressor(),
             }
 
             params = {
                 "Linear Regression": {},
                 "Decision Tree": {
-                    'criterion': ['squared_error', 'friedman_mse', 'absolute_error', 'poisson']
+                    "criterion": [
+                        "squared_error",
+                        "friedman_mse",
+                        "absolute_error",
+                        "poisson",
+                    ]
                 },
-                "Random Forest": {
-                    'n_estimators': [8, 16, 32, 64, 128]
-                },
+                "Random Forest": {"n_estimators": [8, 16, 32, 64, 128]},
                 "Gradient Boosting": {
-                    'learning_rate': [0.1, 0.01, 0.05, 0.001],
-                    'subsample': [0.6, 0.7, 0.75, 0.85, 0.9],
-                    'n_estimators': [8, 16, 32, 64, 128]
+                    "learning_rate": [0.1, 0.01, 0.05, 0.001],
+                    "subsample": [0.6, 0.7, 0.75, 0.85, 0.9],
+                    "n_estimators": [8, 16, 32, 64, 128],
                 },
                 "AdaBoost": {
-                    'learning_rate': [0.1, 0.01, 0.001],
-                    'n_estimators': [8, 16, 32, 64, 128]
-                }
+                    "learning_rate": [0.1, 0.01, 0.001],
+                    "n_estimators": [8, 16, 32, 64, 128],
+                },
             }
         else:
-            raise ValueError('Selected ML Model Type [{}] is not correct!'.format(self.model_trainer_config.model_type))
+            raise ValueError(
+                "Selected ML Model Type [{}] is not correct!".format(
+                    self.model_trainer_config.model_type
+                )
+            )
 
         # Evaluate all models with given hyperparameters and select the best one
-        model_report: dict=evaluate_models(
-            X_train=X_train, y_train=y_train,
-            X_test=X_test, y_test=y_test,
+        model_report: dict = evaluate_models(
+            X_train=X_train,
+            y_train=y_train,
+            X_test=X_test,
+            y_test=y_test,
             models=models,
             params=params,
-            task_type=self.model_trainer_config.model_type    
+            task_type=self.model_trainer_config.model_type,
         )
 
         # Identify the best-performing model based on evaluation score
-        best_model_name, best_model_score = max(model_report.items(), key=lambda item: item[1])
+        best_model_name, best_model_score = max(
+            model_report.items(), key=lambda item: item[1]
+        )
         best_model = models[best_model_name]
 
         # Generate predictions using the best model for both train and test sets
         y_train_pred = best_model.predict(X_train)
         y_test_pred = best_model.predict(X_test)
-        
+
         # Compute evaluation metrics for classification/regression
-        if self.model_trainer_config.model_type == 'classification':
+        if self.model_trainer_config.model_type == "classification":
             # Evaluation metrics on train
-            train_set_metrics = get_classification_scores(y_true=y_train, y_pred=y_train_pred)
-            trainset_model_metric_artifact = ModelMetricArtifact(classification_metrics=train_set_metrics)
+            train_set_metrics = get_classification_scores(
+                y_true=y_train, y_pred=y_train_pred
+            )
+            trainset_model_metric_artifact = ModelMetricArtifact(
+                classification_metrics=train_set_metrics
+            )
             # Evaluation metrics on test
-            test_set_metrics = get_classification_scores(y_true=y_test, y_pred=y_test_pred)
-            testset_model_metric_artifact = ModelMetricArtifact(classification_metrics=test_set_metrics) 
-        elif self.model_trainer_config.model_type == 'regression':
-            train_set_metrics = get_regression_scores(y_true=y_train, y_pred=y_train_pred)
-            trainset_model_metric_artifact = ModelMetricArtifact(regression_metrics=train_set_metrics)
+            test_set_metrics = get_classification_scores(
+                y_true=y_test, y_pred=y_test_pred
+            )
+            testset_model_metric_artifact = ModelMetricArtifact(
+                classification_metrics=test_set_metrics
+            )
+        elif self.model_trainer_config.model_type == "regression":
+            train_set_metrics = get_regression_scores(
+                y_true=y_train, y_pred=y_train_pred
+            )
+            trainset_model_metric_artifact = ModelMetricArtifact(
+                regression_metrics=train_set_metrics
+            )
 
             test_set_metrics = get_regression_scores(y_true=y_test, y_pred=y_test_pred)
-            testset_model_metric_artifact = ModelMetricArtifact(regression_metrics=test_set_metrics)
+            testset_model_metric_artifact = ModelMetricArtifact(
+                regression_metrics=test_set_metrics
+            )
         else:
-            raise ValueError('Selected ML Model Type [{}] is not correct!'.format(self.model_trainer_config.model_type))
+            raise ValueError(
+                "Selected ML Model Type [{}] is not correct!".format(
+                    self.model_trainer_config.model_type
+                )
+            )
 
         # Input example: does not anonymize data
-        input_examlpe = X_train[0: 5]
+        input_examlpe = X_train[0:5]
 
         # Track expriment with MLFLOW
         self.track_mlflow(
             dataset_name=self.model_trainer_config.dataset_name,
             best_model=best_model,
-            train_metrics = trainset_model_metric_artifact,
-            test_metrics = testset_model_metric_artifact,
-            input_example = input_examlpe
+            train_metrics=trainset_model_metric_artifact,
+            test_metrics=testset_model_metric_artifact,
+            input_example=input_examlpe,
         )
 
         # Load the data preprocessor used during feature transformation
-        preprocessor = load_object(file_path=self.data_transform_artifact.transformed_object_file_path)
+        preprocessor = load_object(
+            file_path=self.data_transform_artifact.transformed_object_file_path
+        )
 
         # Ensure the directory exists before saving the trained model
-        model_dir_path = os.path.dirname(self.model_trainer_config.trained_model_file_path)
+        model_dir_path = os.path.dirname(
+            self.model_trainer_config.trained_model_file_path
+        )
         os.makedirs(model_dir_path, exist_ok=True)
 
         # Create a pipeline object containing both preprocessor and trained model
         final_ml_model = MLModel(
-            preprocessor=preprocessor, 
-            model=best_model, 
-            model_task=self.model_trainer_config.model_type
-        ) 
+            preprocessor=preprocessor,
+            model=best_model,
+            model_task=self.model_trainer_config.model_type,
+        )
 
         # Save the final ML model to disk in its experiment folder
         save_object(
-            file_path=self.model_trainer_config.trained_model_file_path, 
-            obj=final_ml_model
+            file_path=self.model_trainer_config.trained_model_file_path,
+            obj=final_ml_model,
         )
 
         # Save the mode and preprocssor in 'final_model'
-        final_model_dir_path = os.path.dirname(self.model_trainer_config.final_trained_model_file_path)
+        final_model_dir_path = os.path.dirname(
+            self.model_trainer_config.final_trained_model_file_path
+        )
         os.makedirs(final_model_dir_path, exist_ok=True)
         save_object(
-            file_path=self.model_trainer_config.final_trained_model_file_path, 
-            obj=final_ml_model
+            file_path=self.model_trainer_config.final_trained_model_file_path,
+            obj=final_ml_model,
         )
 
         # Package model path and evaluation results into an artifact for downstream use
         model_training_artifact = ModelTrainerArtifact(
             trained_model_file_path=self.model_trainer_config.trained_model_file_path,
             train_metric_artifact=trainset_model_metric_artifact,
-            test_metric_artifact=testset_model_metric_artifact
+            test_metric_artifact=testset_model_metric_artifact,
         )
 
         logging.info("Model training artifact: {}".format(model_training_artifact))
         return model_training_artifact
-    
-    def initiate_model_trainer(self)->ModelTrainerArtifact:
+
+    def initiate_model_trainer(self) -> ModelTrainerArtifact:
         """
         Initiates the model training process by loading the transformed data,
         training the model, and returning the training artifact.
@@ -330,15 +394,12 @@ class ModelTrainer:
                 train_arr[:, :-1],
                 train_arr[:, -1],
                 test_arr[:, :-1],
-                test_arr[:, -1]
+                test_arr[:, -1],
             )
 
             # Train the model and generate the model training artifact
             model_training_artifact = self.train_model(
-                X_train=X_train, 
-                y_train=y_train, 
-                X_test=X_test, 
-                y_test=y_test
+                X_train=X_train, y_train=y_train, X_test=X_test, y_test=y_test
             )
 
             return model_training_artifact

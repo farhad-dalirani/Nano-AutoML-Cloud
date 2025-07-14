@@ -12,6 +12,7 @@ from ml_pipeline.logging.logger import logging
 from ml_pipeline.exception.exception import MLPipelineException
 from ml_pipeline.constants.training_pipeline import SCHEMA_DIR
 
+
 def read_yaml_file(file_path: str) -> dict:
     """
     Reads a YAML file and returns its contents as a dictionary.
@@ -26,13 +27,13 @@ def read_yaml_file(file_path: str) -> dict:
         MLPipelineException: If the file cannot be read or parsed.
     """
     try:
-        with open(file_path, 'rb') as yaml_file:
+        with open(file_path, "rb") as yaml_file:
             return yaml.safe_load(yaml_file)
     except Exception as e:
         raise MLPipelineException(error_message=e)
-    
 
-def write_yaml_file(file_path:str, content: object, replace: bool = False) -> None:
+
+def write_yaml_file(file_path: str, content: object, replace: bool = False) -> None:
     """
     Writes the given content to a YAML file at the specified path.
 
@@ -57,7 +58,7 @@ def write_yaml_file(file_path:str, content: object, replace: bool = False) -> No
 
     except Exception as e:
         raise MLPipelineException(e)
-    
+
 
 def save_object(file_path: str, obj: object) -> None:
     """
@@ -142,9 +143,10 @@ def load_numpy_array_data(file_path: str) -> np.array:
     except Exception as e:
         raise MLPipelineException(e)
 
+
 def validate_schema_config(config: dict) -> bool:
     """
-    Validates the structure and constraints of a data schema YAML configuration dictionary 
+    Validates the structure and constraints of a data schema YAML configuration dictionary
     used for a machine learning project pipeline.
 
     This function checks the following:
@@ -169,7 +171,7 @@ def validate_schema_config(config: dict) -> bool:
     Raises:
     ------
     ValueError:
-        If any required key is missing, the format of columns is invalid, 
+        If any required key is missing, the format of columns is invalid,
         or column constraints are violated.
 
     TypeError:
@@ -185,7 +187,7 @@ def validate_schema_config(config: dict) -> bool:
         "DATA_TRANSFORMATION_TARGET_CLASS_MAPPING",
         "numerical_columns",
         "categorical_columns",
-        "ignore_columns"
+        "ignore_columns",
     ]
     try:
         for key in required_keys:
@@ -211,7 +213,9 @@ def validate_schema_config(config: dict) -> bool:
         # If transformation is enabled, mapping must be present
         if config["DATA_TRANSFORMATION_ENABLE_TARGET_CLASS_MAPPING"]:
             if not isinstance(config["DATA_TRANSFORMATION_TARGET_CLASS_MAPPING"], dict):
-                raise TypeError("DATA_TRANSFORMATION_TARGET_CLASS_MAPPING must be a dictionary")
+                raise TypeError(
+                    "DATA_TRANSFORMATION_TARGET_CLASS_MAPPING must be a dictionary"
+                )
 
         # Validate numerical_columns exist and do not include target_column
         numerical_columns = config.get("numerical_columns")
@@ -221,7 +225,9 @@ def validate_schema_config(config: dict) -> bool:
             if col not in column_dict:
                 raise ValueError(f"Numerical column '{col}' not found in columns")
             if col == target_column:
-                raise ValueError(f"target_column '{target_column}' should not be in numerical_columns")
+                raise ValueError(
+                    f"target_column '{target_column}' should not be in numerical_columns"
+                )
 
         # Validate categorical_columns exist and do not include target_column
         categorical_columns = config.get("categorical_columns")
@@ -231,14 +237,20 @@ def validate_schema_config(config: dict) -> bool:
             if col not in column_dict:
                 raise ValueError(f"Categorical column '{col}' not found in columns")
             if col == target_column:
-                raise ValueError(f"target_column '{target_column}' should not be in categorical_columns")
+                raise ValueError(
+                    f"target_column '{target_column}' should not be in categorical_columns"
+                )
 
-        if len(numerical_columns)==0 and len(categorical_columns)==0:
-            raise ValueError(f"Both numerical_columns and categorical_columns can not be empty.")
+        if len(numerical_columns) == 0 and len(categorical_columns) == 0:
+            raise ValueError(
+                f"Both numerical_columns and categorical_columns can not be empty."
+            )
 
         # Validate task_type
         if config["task_type"] not in {"classification", "regression"}:
-            raise ValueError("task_type must be either 'classification' or 'regression'")
+            raise ValueError(
+                "task_type must be either 'classification' or 'regression'"
+            )
     except Exception as e:
         raise MLPipelineException(e)
 
@@ -264,19 +276,18 @@ def read_schema_file(schema_filepath: str) -> dict:
     Exception
         If the file cannot be read or parsed, or if the file extension is unsupported.
     """
-    if schema_filepath.endswith(('.yaml', '.yml')):
+    if schema_filepath.endswith((".yaml", ".yml")):
         try:
             schema = read_yaml_file(file_path=schema_filepath)
             validate_schema_config(config=schema)
             return schema
         except Exception as e:
-            raise Exception(
-                f"Failed to read or parse '{schema_filepath}': {str(e)}"
-            )
+            raise Exception(f"Failed to read or parse '{schema_filepath}': {str(e)}")
     else:
         raise Exception(
             f"Unsupported file extension for '{schema_filepath}'. Expected a .yaml or .yml file."
-        )        
+        )
+
 
 def get_dataset_schema_mapping() -> Dict[str, str]:
     """
@@ -293,7 +304,7 @@ def get_dataset_schema_mapping() -> Dict[str, str]:
     collection_names = {}
 
     for filename in os.listdir(SCHEMA_DIR):
-        if filename.endswith(('.yaml', '.yml')):
+        if filename.endswith((".yaml", ".yml")):
             filepath = os.path.join(SCHEMA_DIR, filename)
             try:
                 content = read_schema_file(schema_filepath=filepath)
@@ -301,14 +312,14 @@ def get_dataset_schema_mapping() -> Dict[str, str]:
                 if collection_name:
                     collection_names[collection_name] = filename
             except Exception as e:
-                raise Exception(
-                    f"Failed to read or parse '{filename}': {str(e)}"
-                )
+                raise Exception(f"Failed to read or parse '{filename}': {str(e)}")
 
     return collection_names
 
 
-def evaluate_models(X_train, y_train, X_test, y_test, models, params, task_type="classification"):
+def evaluate_models(
+    X_train, y_train, X_test, y_test, models, params, task_type="classification"
+):
     """
     Evaluates multiple machine learning models using GridSearchCV and returns a performance report.
 
@@ -374,7 +385,7 @@ def evaluate_models(X_train, y_train, X_test, y_test, models, params, task_type=
             if task_type == "regression":
                 test_model_score = r2_score(y_test, y_test_pred)
             elif task_type == "classification":
-                test_model_score = f1_score(y_test, y_test_pred, average='weighted')
+                test_model_score = f1_score(y_test, y_test_pred, average="weighted")
             else:
                 raise ValueError(f"Unsupported task_type: {task_type}")
 

@@ -1,17 +1,17 @@
 import os
-import sys 
+import sys
 import numpy as np
 import pandas as pd
 
 """
 Defining common constant variables for training pipeline
-"""   
+"""
 
 # Name of the overall pipeline
 PIPELINE_NAME: str = "MLPipeline"
 
 # Directory of schema files
-SCHEMA_DIR = 'data_schema'
+SCHEMA_DIR = "data_schema"
 
 # Directory where all pipeline artifacts (e.g., models, metrics, logs) will be stored
 ARTIFACT_DIR: str = "Artifacts"
@@ -22,14 +22,14 @@ TRAIN_FILE_NAME: str = "train.csv"
 TEST_FILE_NAME: str = "test.csv"
 
 # Directory where the final trained models will be saved
-SAVED_MODEL_DIR =os.path.join("saved_models")
+SAVED_MODEL_DIR = os.path.join("saved_models")
 
 MODEL_FILE_NAME = "model.pkl"
 
-# Directory to save trained model for use 
-FINAL_MODEL_DIR = os.path.join('final_model')
+# Directory to save trained model for use
+FINAL_MODEL_DIR = os.path.join("final_model")
 
-LOGS_DIR = os.path.join('logs')
+LOGS_DIR = os.path.join("logs")
 
 """
 Data Ingestion related constant start with DATA_INGESTION VAR NAME
@@ -75,7 +75,7 @@ Data Transformation related constant start with DATA_TRANSFORMATION VAR NAME
 # Root directory for data transformation outputs
 DATA_TRANSFORMATION_DIR_NAME: str = "data_transformation"
 
-# Directory for transformed datasets 
+# Directory for transformed datasets
 DATA_TRANSFORMATION_TRANSFORMED_DATA_DIR: str = "transformed"
 
 # Directory for data transformer object
@@ -88,7 +88,7 @@ DATA_TRANSFORMATION_IMPUTER_PARAMS: dict = {
     "weights": "uniform",
 }
 
-# Paths for the transformed train and test datasets 
+# Paths for the transformed train and test datasets
 DATA_TRANSFORMATION_TRAIN_FILE_PATH: str = "train.npy"
 DATA_TRANSFORMATION_TEST_FILE_PATH: str = "test.npy"
 
@@ -107,4 +107,3 @@ MODEL_TRAINER_TRAINED_MODEL_NAME: str = "model.pkl"
 
 MODEL_TRAINER_EXPECTED_SCORE: float = 0.6
 MODEL_TRAINER_OVER_FIITING_UNDER_FITTING_THRESHOLD: float = 0.05
-

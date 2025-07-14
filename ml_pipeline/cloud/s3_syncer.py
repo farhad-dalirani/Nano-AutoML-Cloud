@@ -6,16 +6,18 @@ from dotenv import load_dotenv
 # Load variables from .env into the environment
 load_dotenv()
 
+
 class S3Sync:
     def __init__(self):
         # Your check part:
-        aws_access_key_id = os.getenv('AWS_ACCESS_KEY_ID')
-        aws_secret_access_key = os.getenv('AWS_SECRET_ACCESS_KEY')
-        aws_region = os.getenv('AWS_DEFAULT_REGION', 'us-east-1')
+        aws_access_key_id = os.getenv("AWS_ACCESS_KEY_ID")
+        aws_secret_access_key = os.getenv("AWS_SECRET_ACCESS_KEY")
+        aws_region = os.getenv("AWS_DEFAULT_REGION", "us-east-1")
 
         if not aws_access_key_id or not aws_secret_access_key or not aws_region:
-            raise EnvironmentError("AWS credentials not found in environment, add them to `.env` file.")
-
+            raise EnvironmentError(
+                "AWS credentials not found in environment, add them to `.env` file."
+            )
 
     def sync_folder_to_s3(self, folder, aws_bucket_url):
         """

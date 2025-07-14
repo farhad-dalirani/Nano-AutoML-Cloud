@@ -1,5 +1,5 @@
 import os
-import sys 
+import sys
 import numpy as np
 import pandas as pd
 from typing import Union
@@ -42,7 +42,7 @@ class MLModel:
             self.model_task = model_task
         except Exception as e:
             raise MLPipelineException(e)
-        
+
     def predict(self, x: Union[pd.DataFrame, np.ndarray]):
         """
         Generates predictions for the given input data after preprocessing.

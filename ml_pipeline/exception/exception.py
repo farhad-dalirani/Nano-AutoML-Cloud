@@ -1,6 +1,7 @@
 import sys
 from ml_pipeline.logging import logger
 
+
 class MLPipelineException(Exception):
     def __init__(self, error_message):
         self.error_message = error_message
@@ -12,4 +13,3 @@ class MLPipelineException(Exception):
         return "Error occurred in python script name [ {0} ], Line number [ {1} ], Error message [ {2} ]".format(
             self.file_name, self.lineno, str(self.error_message)
         )
-    

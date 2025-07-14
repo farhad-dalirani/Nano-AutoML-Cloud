@@ -11,5 +11,6 @@ mlflow
 fastapi
 python-multipart
 uvicorn
+black
 
 #-e .
