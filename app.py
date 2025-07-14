@@ -13,9 +13,9 @@ from uvicorn import run as app_run
 from starlette.responses import RedirectResponse
 
 from ml_pipeline.logging.logger import logging
+from ml_pipeline.constants.training_pipeline import SCHEMA_DIR
 from ml_pipeline.pipeline.training_pipeline import TrainingPipeline
 from ml_pipeline.pipeline.batch_prediction import batch_data_prediction
-from ml_pipeline.constants.training_pipeline import SCHEMA_DIR
 from ml_pipeline.utils.main_utils.utils import get_dataset_schema_mapping
 
 from dotenv import load_dotenv
@@ -69,7 +69,7 @@ async def get_dataset_names() -> Dict[str, List[str]]:
         HTTPException (500): If any schema file is corrupted or missing required fields.
     """
     try:
-        collection_map = get_dataset_schema_mapping(SCHEMA_DIR)
+        collection_map = get_dataset_schema_mapping()
         return {"datasets": list(collection_map.keys())}
     except Exception as e:
         logging.error(f"Error retrieving dataset names: {e}")
@@ -101,7 +101,7 @@ async def run_train_pipeline(database_name: str):
     """
     try:
         # Step 1: Load map of {DB_collection_name: schema_filename}
-        dataset_mapping = get_dataset_schema_mapping(SCHEMA_DIR)
+        dataset_mapping = get_dataset_schema_mapping()
 
         # Step 2: Check if requested DB name exists
         if database_name not in dataset_mapping:
@@ -161,7 +161,7 @@ async def predict(request: Request, database_name: str, file: UploadFile=File(..
     
     try:
         # Load map of {DB_collection_name: schema_filename}
-        dataset_mapping = get_dataset_schema_mapping(SCHEMA_DIR)
+        dataset_mapping = get_dataset_schema_mapping()
         # Check if requested DB name exists
         if database_name not in dataset_mapping:
             raise HTTPException(

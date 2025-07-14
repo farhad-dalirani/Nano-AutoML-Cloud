@@ -13,7 +13,7 @@ from ml_pipeline.exception.exception import MLPipelineException
 from ml_pipeline.constants.training_pipeline import DATA_TRANSFORMATION_IMPUTER_PARAMS
 from ml_pipeline.entity.artifact_entity import DataTransformationArtifact, DataValidationArtifact
 from ml_pipeline.entity.config_entity import DataTransformationConfig, TrainingPipelineConfig
-from ml_pipeline.utils.main_utils.utils import save_numpy_array_data, save_object, read_yaml_file
+from ml_pipeline.utils.main_utils.utils import save_numpy_array_data, save_object, read_schema_file
 
 
 class DataTransformation:
@@ -26,7 +26,7 @@ class DataTransformation:
             self.data_validation_artifact:DataValidationArtifact = data_validation_artifact
             self.data_transformation_config:DataTransformationConfig = data_transformation_config
             self.training_pipeline_config:TrainingPipelineConfig = training_pipeline_config
-            self.schema = read_yaml_file(file_path=training_pipeline_config.schema_file_path)
+            self.schema = read_schema_file(schema_filepath=training_pipeline_config.schema_file_path)
         except Exception as e:
             raise MLPipelineException(e)
 
@@ -131,7 +131,7 @@ class DataTransformation:
             test_df = DataTransformation.read_data(self.data_validation_artifact.valid_test_file_path)
 
             # Read data schema file for to check if target class values mapping to new values is needed  
-            schema = read_yaml_file(file_path=self.training_pipeline_config.schema_file_path)
+            schema = read_schema_file(schema_filepath=self.training_pipeline_config.schema_file_path)
 
             # Training dataframe
             input_feature_train_df = train_df.drop(columns=[self.training_pipeline_config.target_column], axis=1)

@@ -1,7 +1,7 @@
 from datetime import datetime
 import os
 from ml_pipeline.constants import training_pipeline
-from ml_pipeline.utils.main_utils.utils import read_yaml_file
+from ml_pipeline.utils.main_utils.utils import read_schema_file
 
 class TrainingPipelineConfig:
     """
@@ -41,7 +41,7 @@ class TrainingPipelineConfig:
             raise FileNotFoundError(f"Schema file not found at: {self.schema_file_path}")
 
         # Open schema file
-        schema = read_yaml_file(file_path=self.schema_file_path)
+        schema = read_schema_file(schema_filepath=self.schema_file_path)
 
         self.target_column = schema.get("target_column")
         self.task_type = schema.get("task_type")
@@ -101,11 +101,7 @@ class DataIngestionConfig:
             )
         self.train_test_split_ratio: float = training_pipeline.DATA_INGESTION_TRAIN_TEST_SPLIT_RATION
         
-        schema = read_yaml_file(file_path=training_pipeline_config.schema_file_path)
-        required_keys = ["DB_name", "DB_collection_name"]
-        for key in required_keys:
-            if key not in schema:
-                raise KeyError(f"Missing required configuration key in schema file: '{key}'")
+        schema = read_schema_file(schema_filepath=training_pipeline_config.schema_file_path)
         self.database_name: str = schema["DB_name"]
         self.collection_name: str = schema["DB_collection_name"]
 
