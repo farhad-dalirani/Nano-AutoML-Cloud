@@ -13,6 +13,7 @@
 - **Experiment Tracking**: Integrated with **MLflow** for tracking experiments, model versions, and performance metrics in a cloud-based setup.
 - **Multi-Dataset Support**: Capable of handling multiple datasets concurrently for both training and batch inference tasks.
 - **MLOps & CI/CD Compliance**: Follows best practices in **MLOps** and modern **CI/CD pipelines** to ensure robust, maintainable, and automated workflows.
+- **Automated Model Selection**: Trains and evaluates multiple different kind of models using hyperparameter search, selecting the best-performing model automatically.
 - **Well-Documented**: Clear and thorough documentation to support ease of use, customization, and onboarding for new users or teams.
 
 
