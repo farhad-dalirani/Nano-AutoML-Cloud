@@ -23,6 +23,15 @@ from ml_pipeline.entity.artifact_entity import (
     ModelTrainerArtifact
 )
 
+from ml_pipeline.cloud.s3_syncer import S3Sync
+
+from ml_pipeline.constants.training_pipeline import ARTIFACT_DIR, FINAL_MODEL_DIR, LOGS_DIR
+
+from dotenv import load_dotenv
+
+# Load variables from .env into the environment
+load_dotenv()
+
 class TrainingPipeline:
     """
     A class that defines the end-to-end machine learning training pipeline.
@@ -38,13 +47,15 @@ class TrainingPipeline:
 
     def __init__(self, schema_file_path: str):
         """
-        Initializes the TrainingPipeline with a general TrainingPipelineConfig.
+        Initializes the TrainingPipeline with the required configuration objects
+        and prepares S3 synchronization utility.
 
         Args:
-        schema_file_path (str): Path to the schema file (.yaml or .yml) containing
-                                dataset column definitions, target column, and task type.
+            schema_file_path (str): Path to the schema file (.yaml or .yml) containing
+                                    dataset column definitions, target column, and task type.
         """
         self.training_pipeline_config = TrainingPipelineConfig(schema_file_path=schema_file_path)
+        self.s3_sync = S3Sync()
 
     def start_data_ingestion(self):
         """
@@ -153,6 +164,45 @@ class TrainingPipeline:
         except Exception as e:
             raise MLPipelineException(e)
 
+    def sync_artifacts_directory_to_s3(self):
+        """
+        Synchronizes the local artifacts directory to the corresponding S3 bucket path.
+
+        Raises:
+            MLPipelineException: If syncing to S3 fails.
+        """
+        try:
+            aws_bucket_url = f"s3://{os.environ['AWS_S3_BUCKET_NAME']}/{ARTIFACT_DIR}/{self.training_pipeline_config.timestamp}"
+            self.s3_sync.sync_folder_to_s3(folder=self.training_pipeline_config.artifact_dir, aws_bucket_url=aws_bucket_url)
+        except Exception as e:
+            raise MLPipelineException(e)
+        
+    def sync_final_models_directory_to_s3(self):
+        """
+        Synchronizes the final trained models directory to the corresponding S3 bucket path.
+
+        Raises:
+            MLPipelineException: If syncing to S3 fails.
+        """
+        try:
+            aws_bucket_url = f"s3://{os.environ['AWS_S3_BUCKET_NAME']}/{FINAL_MODEL_DIR}/{self.training_pipeline_config.timestamp}"
+            self.s3_sync.sync_folder_to_s3(folder=self.training_pipeline_config.model_dir, aws_bucket_url=aws_bucket_url)
+        except Exception as e:
+            raise MLPipelineException(e)
+    
+    def sync_logs_directory_to_s3(self):
+        """
+        Synchronizes the local artifacts directory to the corresponding S3 bucket path.
+
+        Raises:
+            MLPipelineException: If syncing to S3 fails.
+        """
+        try:
+            aws_bucket_url = f"s3://{os.environ['AWS_S3_BUCKET_NAME']}/{LOGS_DIR}/{self.training_pipeline_config.timestamp}"
+            self.s3_sync.sync_folder_to_s3(folder=LOGS_DIR, aws_bucket_url=aws_bucket_url)
+        except Exception as e:
+            raise MLPipelineException(e)
+        
     def run(self):
         """
         Executes the full training pipeline from data ingestion to model training.
@@ -168,6 +218,11 @@ class TrainingPipeline:
             data_validation_artifact = self.start_data_validation(data_ingestion_artifact=data_ingestion_artifact)
             data_transformation_artifact = self.start_data_transformation(data_validation_artifact=data_validation_artifact)
             model_trainer_artifact = self.start_model_trainer(data_transformation_artifact=data_transformation_artifact)
+            
+            self.sync_artifacts_directory_to_s3()
+            self.sync_final_models_directory_to_s3()
+            self.sync_logs_directory_to_s3()
+            
             return model_trainer_artifact
         except Exception as e:
             raise MLPipelineException(e)

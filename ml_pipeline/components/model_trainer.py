@@ -4,8 +4,6 @@ import mlflow.sklearn
 from mlflow.models import infer_signature
 
 from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import r2_score
-from sklearn.neighbors import KNeighborsClassifier
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.ensemble import AdaBoostClassifier, GradientBoostingClassifier, RandomForestClassifier
 from sklearn.linear_model import LinearRegression
@@ -306,7 +304,7 @@ class ModelTrainer:
 
         logging.info("Model training artifact: {}".format(model_training_artifact))
         return model_training_artifact
-
+    
     def initiate_model_trainer(self)->ModelTrainerArtifact:
         """
         Initiates the model training process by loading the transformed data,

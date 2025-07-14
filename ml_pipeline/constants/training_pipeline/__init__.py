@@ -5,12 +5,7 @@ import pandas as pd
 
 """
 Defining common constant variables for training pipeline
-"""
-# Type of model to train: can be either "classification" or "regression"
-#MODEL_TYPE = "classification" 
-
-# Name of the target column in the dataset
-#TARGET_COLUMN = "result"    
+"""   
 
 # Name of the overall pipeline
 PIPELINE_NAME: str = "MLPipeline"
@@ -34,6 +29,7 @@ MODEL_FILE_NAME = "model.pkl"
 # Directory to save trained model for use 
 FINAL_MODEL_DIR = os.path.join('final_model')
 
+LOGS_DIR = os.path.join('logs')
 
 """
 Data Ingestion related constant start with DATA_INGESTION VAR NAME
@@ -112,4 +108,3 @@ MODEL_TRAINER_TRAINED_MODEL_NAME: str = "model.pkl"
 MODEL_TRAINER_EXPECTED_SCORE: float = 0.6
 MODEL_TRAINER_OVER_FIITING_UNDER_FITTING_THRESHOLD: float = 0.05
 
-TRAINING_BUCKET_NAME = "MLPipeline"
