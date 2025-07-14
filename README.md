@@ -39,8 +39,9 @@
 5. Configure AWS:
     - Create an AWS user via `IAM` in the AWS dashboard with the appropriate permissions. A general — but not recommended — choice is `AdministratorAccess`.
     - Once the user is created, go to the user's settings, then under `Security Credentials`, create a `CLI access key`.
-    - According to the provided `.env` file, enter the Access Key and Secret Access Key from the previous step into your .env file. It is also recommended to run `aws configure` in the terminal and use the same Access Key and Secret Access Key to initialize the AWS CLI.
+    - According to the provided `.env` file, enter the Access Key and Secret Access Key from the previous step into your .env file. It is also recommended to run `aws configure` in the terminal and use the same Access Key and Secret Access Key to initialize the AWS CLI. Also add them to Github Secrets.
     - Create an S3 bucket Via `S3` in AWS dashboard, and put its name into `.env` file according to provided example.
+    - Create an `AWS ECR` to privately host the dockerfile. Then, accoding to section `.env and Github Secret`, add the necessary secrets to your GitHub repository.
 
 6. Create a MongoDB database and add its URL to the `.env` file. You can use a free MongoDB hosting service from the [MongoDB official website](https://www.mongodb.com/). Upload your tabular dataset as a collection. The `push_data.py` script can upload three example datasets to your database. Run the script once to insert the data: `python3 push_data.py`. You should not run it again unless the data is removed. If you're using your own dataset instead of the examples, create a new schema based on the ones in the `data_schema` folder.
 
@@ -48,6 +49,32 @@
 7. -
 
 ## Data and Schema Files
+
+
+## .env and Github Secret
+
+- Structure of `.env`:
+```
+MONGO_DB_URL="fill here"
+
+AWS_ACCESS_KEY_ID="fill here"
+AWS_SECRET_ACCESS_KEY="fill here"
+AWS_DEFAULT_REGION = "fill here"
+
+AWS_S3_BUCKET_NAME="fill here"
+
+AWS_ECR_LOGIN_URI="fill here"
+ECR_REPOSITORY_NAME="fill here"
+```
+
+- Add these secrets to Github, obtain the values from the `Installation and Usage` sections:
+```
+AWS_ACCESS_KEY_ID
+AWS_SECRET_ACCESS_KEY
+AWS_REGION
+AWS_ECR_LOGIN_URI
+ECR_REPOSITORY_NAME
+```
 
 
 ## Example Datasets and Results
