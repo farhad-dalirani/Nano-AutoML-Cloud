@@ -1,10 +1,11 @@
-import logging
 import os
+import logging
 from datetime import datetime
+from ml_pipeline.constants.training_pipeline import LOGS_DIR
 
 LOG_FILE=f"{datetime.now().strftime('%m_%d_%Y_%H_%M_%S')}.log"
 
-log_path=os.path.join(os.getcwd(), 'logs', LOG_FILE)
+log_path=os.path.join(os.getcwd(), LOGS_DIR, LOG_FILE)
 
 os.makedirs(log_path, exist_ok=True)
 
