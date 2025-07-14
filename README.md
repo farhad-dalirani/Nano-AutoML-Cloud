@@ -31,26 +31,26 @@
     pip install -r requirements.txt
     ```
 
-3. Configure the environment by completing the required fields in the `.env` file, using `.env-example` as a reference.
+3. Install `AWS CLI`, see [AWS instructions](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html).
+
+4. Configure the environment by completing the required fields in the `.env` file, using `.env-example` as a reference and following instructions.
+
+5. Configure AWS:
+    - Create an AWS user via `IAM` in the AWS dashboard with the appropriate permissions. A general — but not recommended — choice is `AdministratorAccess`.
+    - Once the user is created, go to the user's settings, then under `Security Credentials`, create a `CLI access key`.
+    - According to the provided `.env` file, enter the Access Key and Secret Access Key from the previous step into your .env file. It is also recommended to run `aws configure` in the terminal and use the same Access Key and Secret Access Key to initialize the AWS CLI.
+    - Create an S3 bucket Via `S3` in AWS dashboard, and put its name into `.env` file according to provided example.
+
+6. Create a MongoDB database and add its URL to the `.env` file. You can use a free MongoDB hosting service from the [MongoDB official website](https://www.mongodb.com/). Upload your tabular dataset as a collection. The `push_data.py` script can upload three example datasets to your database. Run the script once to insert the data: `python3 push_data.py`. You should not run it again unless the data is removed. If you're using your own dataset instead of the examples, create a new schema based on the ones in the `data_schema` folder.
 
 
-4. Initialize the database by running `push_data.py` once to insert the target dataset into MongoDB. Once this is done, as long as the data remains in the dataset, you don't need to run it again for subsequent runs:
-
-    ```
-    python3 push_data.py
-    ```
+7. -
 
 ## Data and Schema Files
 
 
-## Contents of `.env`
-
-- Link to your MongoDB, something similar to this
-```
-MONGO_DB_URL="mongodb+srv://<USER>:<password>@cluster0.yrugr0p.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
-```
-- 
-
 ## Example Datasets and Results
 
 Mohammad, R. & McCluskey, L. (2012). Phishing Websites [Dataset]. UCI Machine Learning Repository. https://doi.org/10.24432/C51W2X.
+
+## Code Structure
