@@ -13,10 +13,8 @@ from uvicorn import run as app_run
 from starlette.responses import RedirectResponse
 
 from ml_pipeline.logging.logger import logging
-from ml_pipeline.exception.exception import MLPipelineException
 from ml_pipeline.pipeline.training_pipeline import TrainingPipeline
 from ml_pipeline.pipeline.batch_prediction import batch_data_prediction
-from ml_pipeline.utils.main_utils.utils import read_yaml_file
 from ml_pipeline.constants.training_pipeline import SCHEMA_DIR
 from ml_pipeline.utils.main_utils.utils import get_dataset_schema_mapping
 

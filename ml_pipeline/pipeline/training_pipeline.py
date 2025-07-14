@@ -2,6 +2,7 @@ import os
 
 from ml_pipeline.logging.logger import logging
 from ml_pipeline.exception.exception import MLPipelineException
+from ml_pipeline.constants.training_pipeline import ARTIFACT_DIR, FINAL_MODEL_DIR, LOGS_DIR
 
 from ml_pipeline.components.data_ingestion import DataIngestion
 from ml_pipeline.components.data_validation import DataValidation
@@ -24,8 +25,6 @@ from ml_pipeline.entity.artifact_entity import (
 )
 
 from ml_pipeline.cloud.s3_syncer import S3Sync
-
-from ml_pipeline.constants.training_pipeline import ARTIFACT_DIR, FINAL_MODEL_DIR, LOGS_DIR
 
 from dotenv import load_dotenv
 
@@ -161,6 +160,7 @@ class TrainingPipeline:
             )
             model_trainer_artifact = model_training.initiate_model_trainer()
             logging.info("Model training was finished and artifact: {}.".format(model_trainer_artifact))
+            return model_trainer_artifact
         except Exception as e:
             raise MLPipelineException(e)
 
@@ -214,15 +214,16 @@ class TrainingPipeline:
             MLPipelineException: If any pipeline stage fails.
         """
         try:
+            logging.info("\n" + "=" * 30 + "\nTraining Pipeline started ...\n" + "=" * 30)
             data_ingestion_artifact = self.start_data_ingestion()
             data_validation_artifact = self.start_data_validation(data_ingestion_artifact=data_ingestion_artifact)
             data_transformation_artifact = self.start_data_transformation(data_validation_artifact=data_validation_artifact)
-            model_trainer_artifact = self.start_model_trainer(data_transformation_artifact=data_transformation_artifact)
+            model_trainer_artifact:ModelTrainerArtifact = self.start_model_trainer(data_transformation_artifact=data_transformation_artifact)
             
             self.sync_artifacts_directory_to_s3()
             self.sync_final_models_directory_to_s3()
             self.sync_logs_directory_to_s3()
-            
+            logging.info("\n" + "=" * 30 + "\nTraining Pipeline ended.\n" + "=" * 30)
             return model_trainer_artifact
         except Exception as e:
             raise MLPipelineException(e)
