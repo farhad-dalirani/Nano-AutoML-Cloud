@@ -24,7 +24,7 @@ jobs:
         uses: actions/checkout@v3  # Clones the repo code
 
       - name: Lint code
-        run: black ml_pipeline/ app.py  push_data.py  # Format the specified Python files and directory using the Black code formatter
+        run: python -m black ml_pipeline/ app.py push_data.py  # Format the specified Python files and directory using the Black code formatter
 
       - name: Run unit tests
         run: echo "Currently no public unit tests"  # Placeholder for actual test commands
