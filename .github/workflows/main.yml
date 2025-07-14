@@ -1,0 +1,30 @@
+# Name of the workflow shown in the GitHub Actions UI
+name: workflow
+
+# Workflow trigger: on push to the 'main' branch, excluding changes to README.md
+on:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - 'README.md'
+
+# Permissions granted to the workflow 
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  # Job: Continuous Integration (CI)
+  integration:
+    name: Continuous Integration
+    runs-on: ubuntu-latest  # Runs on GitHub-hosted Ubuntu runner
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3  # Clones the repo code
+
+      - name: Lint code
+        run: black ml_pipeline/ app.py  push_data.py  # Format the specified Python files and directory using the Black code formatter
+
+      - name: Run unit tests
+        run: echo "Currently no public unit tests"  # Placeholder for actual test commands
