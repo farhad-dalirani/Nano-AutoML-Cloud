@@ -98,7 +98,7 @@ jobs:
          
       - name: Stop and remove  container if running
         run: |
-          docker ps -q --filter "name=networksecurity" | grep -q . && docker stop networksecurity && docker rm -fv networksecurity
+          docker ps -q --filter "name=nanoautomlcloud" | grep -q . && docker stop nanoautomlcloud && docker rm -fv nanoautomlcloud
        
       - name: Run Docker Image to serve users
         run: |
