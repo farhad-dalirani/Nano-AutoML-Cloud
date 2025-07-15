@@ -32,11 +32,13 @@
     pip install -r requirements.txt
     ```
 
-3. Install `AWS CLI`, see [AWS instructions](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html).
+3. Create a MongoDB database and add its URL to the `.env` file. You can use a free MongoDB hosting service from the [MongoDB official website](https://www.mongodb.com/). Upload your tabular dataset as a collection. The `push_data.py` script can upload three example datasets to your database. Run the script once to insert the data: `python3 push_data.py`. You should not run it again unless the data is removed. If you're using your own dataset instead of the examples, create a new schema based on the ones in the `data_schema` folder.
 
-4. Configure the environment by completing the required fields in the `.env` file, using `.env-example` as a reference and following instructions.
+4. Install `AWS CLI`, see [AWS instructions](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html).
 
-5. Configure AWS:
+5. Configure the environment by completing the required fields in the `.env` file, using `.env-example` as a reference and following instructions.
+
+6. Configure AWS:
     - Create an AWS user via `IAM` in the AWS dashboard with the appropriate permissions. A general — but not recommended — choice is `AdministratorAccess`.
     - Once the user is created, go to the user's settings, then under `Security Credentials`, create a `CLI access key`.
     - According to the provided `.env` file, enter the Access Key and Secret Access Key from the previous step into your .env file. It is also recommended to run `aws configure` in the terminal and use the same Access Key and Secret Access Key to initialize the AWS CLI. Also add them to Github Secrets.
@@ -52,11 +54,15 @@
       newgrp docker
       ```
     - Then go in to Github repository, Setting, Actions, Runners. Create a Linux Runner. It will give some commands, copy and past in EC2 terminal. If it asked `Enter the name of runner: [press Enter for ip-...-..-..-..]` enter `self-hosted`.
+    - Furthermore, through the EC2 instance panel, navigate to the Security Group settings, then to Inbound Rules, and make sure to add a rule that allows inbound traffic on port 8000:
+      ```
+      | Type       | Protocol | Port Range | Source    |
+      | ---------- | -------- | ---------- | --------- |
+      | Custom TCP | TCP      | 8000       | 0.0.0.0/0 |
 
-6. Create a MongoDB database and add its URL to the `.env` file. You can use a free MongoDB hosting service from the [MongoDB official website](https://www.mongodb.com/). Upload your tabular dataset as a collection. The `push_data.py` script can upload three example datasets to your database. Run the script once to insert the data: `python3 push_data.py`. You should not run it again unless the data is removed. If you're using your own dataset instead of the examples, create a new schema based on the ones in the `data_schema` folder.
+      ```
 
-
-7. -
+7. Go to your EC2 instance URL, something like `https://ec2-..-...-...-....compute-1.amazonaws.com:8000/docs`, to view the API endpoints for training and batch prediction on datasets.
 
 ## Data and Schema Files
 
