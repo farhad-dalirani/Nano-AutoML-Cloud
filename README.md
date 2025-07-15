@@ -62,15 +62,19 @@
        cd ~/actions-runner
        ./run.sh 
       ```
-    - Furthermore, in your AWS EC2 instance panel, navigate to **Security** > **Security Groups**, then click **Edit Inbound Rules**. Ensure you add a rule that allows inbound traffic on port `8000` to enable external access to services running on that port:
+    - Furthermore, in your AWS EC2 instance panel, navigate to **Security** > **Security Groups**, then click **Edit Inbound Rules**. Ensure you add a rule that allows inbound traffic on port `8000` to enable external access to services running on that port. Also, repeat this step for port `5000`, which is used by MLflow:
       ```
       | Type       | Protocol | Port Range | Source    |
       | ---------- | -------- | ---------- | --------- |
       | Custom TCP | TCP      | 8000       | 0.0.0.0/0 |
+      | Custom TCP | TCP      | 5000       | 0.0.0.0/0 |
 
       ```
+      
 
-7. Access your EC2 instance URL, which should look like `http://ec2-..-...-...-....compute-1.amazonaws.com:8000/docs`, to view the API endpoints for training and batch prediction on datasets. Given the current configuration, ensure you use `http` rather than `https`.
+7. To interact with the deployed Nano AutoML Cloud system, use the following interfaces:
+    - Access your EC2 instance URL, which should look like `http://ec2-..-...-...-....compute-1.amazonaws.com:8000/docs`, to view the API endpoints for training and batch prediction on datasets. Given the current configuration, ensure you use `http` rather than `https`.
+    - To view the MLflow UI, navigate to `http://ec2-..-...-...-....compute-1.amazonaws.com:5000`, replacing the first part with your actual EC2 instance URL.
 
 
 ## .env and Github Secret

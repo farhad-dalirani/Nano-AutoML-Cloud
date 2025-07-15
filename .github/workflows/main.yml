@@ -136,7 +136,7 @@ jobs:
 
       - name: Run Docker Image to serve users
         run: |
-          docker run -d -p 8000:8000 --ipc="host" --name=nanoautomlcloud \
+          docker run -d -p 8000:8000 -p 5000:5000 --ipc="host" --name=nanoautomlcloud \
           --env-file .env \
           ${{ secrets.AWS_ECR_LOGIN_URI }}/${{ secrets.ECR_REPOSITORY_NAME }}:latest
 
