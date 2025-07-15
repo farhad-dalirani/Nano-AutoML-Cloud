@@ -62,7 +62,7 @@
 
       ```
 
-7. Go to your EC2 instance URL, something like `https://ec2-..-...-...-....compute-1.amazonaws.com:8000/docs`, to view the API endpoints for training and batch prediction on datasets.
+7. Go to your EC2 instance URL, something like `http://ec2-..-...-...-....compute-1.amazonaws.com:8000/docs`, to view the API endpoints for training and batch prediction on datasets. With the current settings, make sure to use `http`.
 
 
 ## .env and Github Secret
