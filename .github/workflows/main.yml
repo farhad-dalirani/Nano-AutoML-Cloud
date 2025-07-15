@@ -92,6 +92,20 @@ jobs:
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
       
+      - name: Check disk space before cleanup
+        run: df -h
+      
+      - name: Aggressive Docker Cleanup
+        run: |
+          docker container prune -f
+          docker image prune -af
+          docker volume prune -f
+          docker builder prune -af
+          docker system df
+
+      - name: Check disk space after cleanup
+        run: df -h
+
       - name: Pull latest images
         run: |
          docker pull ${{secrets.AWS_ECR_LOGIN_URI}}/${{ secrets.ECR_REPOSITORY_NAME }}:latest
@@ -113,6 +127,7 @@ jobs:
          -e AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }} \
          -e AWS_REGION=${{ secrets.AWS_REGION }} \
          ${{ secrets.AWS_ECR_LOGIN_URI }}/${{ secrets.ECR_REPOSITORY_NAME }}:latest
+      
       - name: Clean previous images and containers
         run: |
          docker system prune -f
