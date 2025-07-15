@@ -68,11 +68,6 @@ async def get_dataset_names() -> Dict[str, List[str]]:
     Returns:
         dict: A dictionary with a single key 'datasets' that maps to a list of dataset names.
 
-              Example:
-              {
-                  "datasets": ["bike_sharing_daily", "phishing_sites"]
-              }
-
     Raises:
         HTTPException (500): If any schema file is corrupted or missing required fields.
     """
