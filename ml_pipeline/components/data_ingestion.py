@@ -56,7 +56,7 @@ class DataIngestion:
             collection_name = self.data_ingestion_config.collection_name
 
             # Create a MongoDB client to connect to the server
-            self.mongo_client = pymongo.MongoClient(host=MONGO_DB_URL)
+            self.mongo_client = pymongo.MongoClient(MONGO_DB_URL)
 
             # Read the whole target collection
             collection = self.mongo_client[database_name][collection_name]
