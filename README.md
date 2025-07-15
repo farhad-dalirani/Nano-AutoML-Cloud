@@ -54,7 +54,7 @@
       newgrp docker
       ```
     - Then go in to Github repository, Setting, Actions, Runners. Create a Linux Runner. It will give some commands, copy and past in EC2 terminal. If it asked `Enter the name of runner: [press Enter for ip-...-..-..-..]` enter `self-hosted`.
-    - Furthermore, through the EC2 instance panel, navigate to the Security Group settings, then to Inbound Rules, and make sure to add a rule that allows inbound traffic on port 8000:
+    - Furthermore, through the AWS EC2 Console, navigate to the Security Group settings, then to Inbound Rules, and make sure to add a rule that allows inbound traffic on port 8000:
       ```
       | Type       | Protocol | Port Range | Source    |
       | ---------- | -------- | ---------- | --------- |
@@ -63,8 +63,6 @@
       ```
 
 7. Go to your EC2 instance URL, something like `https://ec2-..-...-...-....compute-1.amazonaws.com:8000/docs`, to view the API endpoints for training and batch prediction on datasets.
-
-## Data and Schema Files
 
 
 ## .env and Github Secret
