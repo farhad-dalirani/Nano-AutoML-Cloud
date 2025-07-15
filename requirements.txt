@@ -1,9 +1,8 @@
 python-dotenv
 pandas
 numpy
-pymongo
-certifi
 pymongo[srv]
+certifi
 scikit-learn
 ucimlrepo
 pyaml
