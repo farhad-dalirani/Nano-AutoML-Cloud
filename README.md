@@ -87,9 +87,12 @@ ECR_REPOSITORY_NAME="fill here"
 
 - Add these secrets to Github, obtain the values from the `Installation and Usage` sections:
 ```
+MONGO_DB_URL
 AWS_ACCESS_KEY_ID
 AWS_SECRET_ACCESS_KEY
 AWS_REGION
+AWS_DEFAULT_REGION
+AWS_S3_BUCKET_NAME
 AWS_ECR_LOGIN_URI
 ECR_REPOSITORY_NAME
 ```
