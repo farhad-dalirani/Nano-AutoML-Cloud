@@ -53,7 +53,11 @@
       sudo usermod -aG docker ubuntu
       newgrp docker
       ```
-    - Then go in to Github repository, Setting, Actions, Runners. Create a Linux Runner. It will give some commands, copy and past in EC2 terminal. If it asked `Enter the name of runner: [press Enter for ip-...-..-..-..]` enter `self-hosted`.
+    - Then go in to Github repository, Setting, Actions, Runners. Create a Linux `Runner`. It will give some setup commands, copy and past in EC2 terminal. If it asked `Enter the name of runner: [press Enter for ip-...-..-..-..]` enter `self-hosted`. Also, later, if you find that the action runner has stopped on your instance, you can manually run it by
+      ```
+       cd ~/actions-runner
+       ./run.sh 
+      ```
     - Furthermore, through the your AWS EC2 instance panel, navigate to the Security, Security Group, then to Edit Inbound Rules, and make sure to add a rule that allows inbound traffic on port 8000:
       ```
       | Type       | Protocol | Port Range | Source    |
