@@ -11,11 +11,14 @@ from ml_pipeline.logging.logger import logging
 from pathlib import Path
 from ucimlrepo import fetch_ucirepo
 
-# Load environment variables
-load_dotenv()
-
-# Get MongoDB connection string from environment
+# URL of MongoDB database that contains datasets
 MONGO_DB_URL = os.getenv("MONGO_DB_URL")
+
+# Optional fallback for local development only
+if MONGO_DB_URL is None:
+    from dotenv import load_dotenv
+    load_dotenv()
+    MONGO_DB_URL = os.getenv("MONGO_DB_URL")
 
 ca = certifi.where()
 

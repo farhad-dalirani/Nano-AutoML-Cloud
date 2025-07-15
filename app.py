@@ -20,11 +20,16 @@ from ml_pipeline.utils.main_utils.utils import get_dataset_schema_mapping
 
 from dotenv import load_dotenv
 
-load_dotenv()
-
-ca = certifi.where()
+# URL of MongoDB database that contains datasets
 mongo_db_url = os.getenv("MONGO_DB_URL")
 
+# Optional fallback for local development only
+if mongo_db_url is None:
+    from dotenv import load_dotenv
+    load_dotenv()
+    mongo_db_url = os.getenv("MONGO_DB_URL")
+
+ca = certifi.where()
 client = pymongo.MongoClient(host=mongo_db_url, tlsCAFile=ca)
 
 templates = Jinja2Templates(directory="./templates")

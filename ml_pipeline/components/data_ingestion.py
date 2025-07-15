@@ -1,25 +1,24 @@
 import os
-import sys
 import pymongo
 import numpy as np
 import pandas as pd
-from typing import List
 from sklearn.model_selection import train_test_split
-from dotenv import load_dotenv
 
 from ml_pipeline.exception.exception import MLPipelineException
 from ml_pipeline.logging.logger import logging
 
 # Configuration for the Data Ingestion Config
 from ml_pipeline.entity.config_entity import DataIngestionConfig
-
 from ml_pipeline.entity.artifact_entity import DataIngestionArtifact
 
-# Read .env file
-load_dotenv()
-
+# URL of MongoDB database that contains datasets
 MONGO_DB_URL = os.getenv("MONGO_DB_URL")
 
+# Optional fallback for local development only
+if MONGO_DB_URL is None:
+    from dotenv import load_dotenv
+    load_dotenv()
+    MONGO_DB_URL = os.getenv("MONGO_DB_URL")
 
 class DataIngestion:
     """

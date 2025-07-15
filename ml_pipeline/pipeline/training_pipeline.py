@@ -30,11 +30,6 @@ from ml_pipeline.entity.artifact_entity import (
 
 from ml_pipeline.cloud.s3_syncer import S3Sync
 
-from dotenv import load_dotenv
-
-# Load variables from .env into the environment
-load_dotenv()
-
 
 class TrainingPipeline:
     """
