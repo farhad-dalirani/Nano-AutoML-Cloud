@@ -42,6 +42,16 @@
     - According to the provided `.env` file, enter the Access Key and Secret Access Key from the previous step into your .env file. It is also recommended to run `aws configure` in the terminal and use the same Access Key and Secret Access Key to initialize the AWS CLI. Also add them to Github Secrets.
     - Create an S3 bucket Via `S3` in AWS dashboard, and put its name into `.env` file according to provided example.
     - Create an `AWS ECR` to privately host the dockerfile. Then, accoding to section `.env and Github Secret`, add the necessary secrets to your GitHub repository.
+    - In the AWS panel, go to `EC2`and create an Ubuntu instance. Then, choose an appropriate instance type, such as  `t2.medium`. Afterwards, from the EC2 panel, connect to the running instance's terminal. Once connected, enter the following commands in the terminal, which, generally speaking, is the proper way to install Docker on an EC2 instance:
+      ```
+      sudo apt-get update -y
+      sudo apt-get upgrade
+      curl -fsSL https://get.docker.com -o get-docker.sh
+      sudo sh get-docker.sh
+      sudo usermod -aG docker ubuntu
+      newgrp docker
+      ```
+    - Then go in to Github repository, Setting, Actions, Runners. Create a Linux Runner. It will give some commands, copy and past in EC2 terminal. If it asked `Enter the name of runner: [press Enter for ip-...-..-..-..]` enter `self-hosted`.
 
 6. Create a MongoDB database and add its URL to the `.env` file. You can use a free MongoDB hosting service from the [MongoDB official website](https://www.mongodb.com/). Upload your tabular dataset as a collection. The `push_data.py` script can upload three example datasets to your database. Run the script once to insert the data: `python3 push_data.py`. You should not run it again unless the data is removed. If you're using your own dataset instead of the examples, create a new schema based on the ones in the `data_schema` folder.
 
