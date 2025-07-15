@@ -203,4 +203,7 @@ async def predict(request: Request, database_name: str, file: UploadFile = File(
 
 
 if __name__ == "__main__":
-    app_run(app=app, host="localhost", port=8000)
+    # Starts the Uvicorn ASGI server with the FastAPI app,
+    # binding it to all available network interfaces (0.0.0.0)
+    # so it can be accessed externally (e.g., from outside a Docker container or EC2 instance).
+    app_run(app=app, host="0.0.0.0", port=8000)
