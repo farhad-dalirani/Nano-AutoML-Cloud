@@ -75,6 +75,7 @@ jobs:
           echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
   
   continuous-deployment:
+    name: Continuous Deployment
     needs: build-and-push-ecr-image
     runs-on: self-hosted  #Persistent Listening for Triggers, the EC2 instance is running the self-hosted runner continuously.
     steps:
@@ -131,6 +132,15 @@ jobs:
           AWS_ECR_LOGIN_URI=${{ secrets.AWS_ECR_LOGIN_URI }}
           ECR_REPOSITORY_NAME=${{ secrets.ECR_REPOSITORY_NAME }}
           EOF
+
+      - name: Run Docker Image to serve users
+        run: |
+          docker run -d -p 8000:8000 --ipc="host" --name=nanoautomlcloud \
+          --env-file .env \
+          ${{ secrets.AWS_ECR_LOGIN_URI }}/${{ secrets.ECR_REPOSITORY_NAME }}:latest
+
+      - name: Remove .env file
+        run: rm -f .env
 
       - name: Run Docker Image to serve users
         run: |
