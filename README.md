@@ -36,7 +36,7 @@
 
 4. Install `AWS CLI`, see [AWS instructions](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html).
 
-5. Configure the environment by completing the required fields in the `.env` file, using `.env-example` as a reference and following instructions.
+5. Configure the environment by completing the required fields in the `.env` file, using the example .env file and the instructions below as a reference.
 
 6. Configure AWS:
     - Create an AWS user via `IAM` in the AWS dashboard with the appropriate permissions. A general — but not recommended — choice is `AdministratorAccess`.
@@ -78,6 +78,7 @@ MONGO_DB_URL="fill here"
 AWS_ACCESS_KEY_ID="fill here"
 AWS_SECRET_ACCESS_KEY="fill here"
 AWS_DEFAULT_REGION = "fill here"
+AWS_REGION = "fill here"
 
 AWS_S3_BUCKET_NAME="fill here"
 
