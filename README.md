@@ -1,4 +1,4 @@
-# Nano-AutoML-Cloud: An End-to-End, Cloud-Based, Production-Ready Machine Learning Pipeline
+# Nano-AutoML-Cloud
 **Nano AutoML Cloud** is a compact, cloud-based, end-to-end machine learning pipeline designed for tabular data, supporting both classification and regression tasks. The project is production-ready and optimized for deployment on **cloud platforms** such as AWS. It adheres to modern **MLOps practices** and **CI/CD** standards, ensuring scalability, maintainability, and seamless integration into real-world systems. The codebase is straightforward to understand and extend, making it a flexible solution suitable for a wide range of machine learning applications.
 
 <img src="README-assets/end-to-end-training-pipeline.png" alt="Nano-AutoML End-to-end-Machine-Learning-Data-Science-Training-Pipeline" style="width:100%;"/>
@@ -48,7 +48,7 @@
     - Enter the Access Key ID and Secret Access Key obtained from the previous step into your `.env` file and Github Secrets.
     - Create an S3 bucket through the `S3` service in the AWS dashboard, and include the bucket name in your `.env` file and Github Secrets.
     - Create an AWS Elastic Container Registry (`ECR`) repository to privately host your Docker images. Follow the instructions in the `.env and GitHub Secrets` section to add the required secrets to your GitHub repository.
-    - In the AWS console, go to the `EC2` service and launch an Ubuntu instance. Select an appropriate instance type, such as `t2.medium`. After the instance is running, connect to it via SSH using the EC2 panel’s connection feature. Once connected, execute the following commands in the terminal to properly install Docker on the EC2 instance:
+    - In the AWS console, go to the `EC2` service and launch an Ubuntu instance. Select an appropriate instance type, such as `t2.large`. After the instance is running, connect to it via SSH using the EC2 panel’s connection feature. Once connected, execute the following commands in the terminal to properly install Docker on the EC2 instance:
       ```
       sudo apt-get update -y
       sudo apt-get upgrade
@@ -108,7 +108,29 @@
 
 
 ## Demo
-
+<table>
+  <tr>
+    <td><a href="README-assets/1.png"><img src="README-assets/1.png" width="150"/></a></td>
+    <td><a href="README-assets/2.png"><img src="README-assets/2.png" width="150"/></a></td>
+    <td><a href="README-assets/3.png"><img src="README-assets/3.png" width="150"/></a></td>
+  </tr>
+  <tr>
+    <td><a href="README-assets/4.png"><img src="README-assets/4.png" width="150"/></a></td>
+    <td><a href="README-assets/5.png"><img src="README-assets/5.png" width="150"/></a></td>
+    <td><a href="README-assets/6.png"><img src="README-assets/6.png" width="150"/></a></td>
+  </tr>
+  <tr>
+    <td><a href="README-assets/7.png"><img src="README-assets/7.png" width="150"/></a></td>
+    <td><a href="README-assets/8.png"><img src="README-assets/8.png" width="150"/></a></td>
+    <td><a href="README-assets/9.png"><img src="README-assets/9.png" width="150"/></a></td>
+  </tr>
+  <tr>
+    <td><a href="README-assets/10.png"><img src="README-assets/10.png" width="150"/></a></td>
+    <td><a href="README-assets/11.png"><img src="README-assets/11.png" width="150"/></a></td>
+    <td><a href="README-assets/12.png"><img src="README-assets/12.png" width="150"/></a></td>
+    <td></td>
+  </tr>
+</table>
 
 ## Code Structure
 
@@ -142,6 +164,8 @@
 ## Todo
 - User Authentication and Authorization: Implement OAuth2-based user identification and verification to enhance security and enable multi-user access control for training, prediction, and experiment tracking endpoints.
 
-- Expand Model Capabilities: Integrate advanced machine learning architectures, including Graph Neural Networks (GNNs) and TabM neural network, to improve performance on complex and structured data tasks.
+- Expand Model Capabilities: Integrate more advanced machine learning architectures, including Graph Neural Networks (GNNs) and TabM neural network, to improve performance on complex and structured data tasks.
 
 - Support for Multiple Data Modalities: Extend the pipeline to handle other modalities such as images, text, and time series, enabling broader applicability across diverse machine learning problems.
+
+- Currently, the app stores models, logs, and artifacts both on the local machine and in the AWS S3 bucket. In the future, update the code to store everything only on S3 to better utilize EC2 instance space.
