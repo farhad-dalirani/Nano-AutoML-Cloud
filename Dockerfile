@@ -8,10 +8,11 @@ WORKDIR /app
 COPY . /app
 
 # Update the package list and install AWS CLI tool (used to interact with AWS services)
-RUN apt update -y && apt install awscli -y
-
 # Update package list again (to ensure latest listings) and install Python dependencies from requirements.txt
-RUN apt-get update && pip install -r requirements.txt
-
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends awscli && \
+    rm -rf /var/lib/apt/lists/* && \
+    pip install --no-cache-dir -r requirements.txt
+    
 # Define the command to run the application using Python 3
 CMD ["python3", "app.py"]
