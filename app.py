@@ -29,6 +29,9 @@ if mongo_db_url is None:
     load_dotenv()
     mongo_db_url = os.getenv("MONGO_DB_URL")
 
+# Set MLflow environment variable
+os.environ["MLFLOW_ARTIFACT_ROOT"] = "s3://{}/mlflow-artifacts".format(os.getenv("AWS_S3_BUCKET_NAME"))
+
 ca = certifi.where()
 client = pymongo.MongoClient(host=mongo_db_url, tlsCAFile=ca)
 

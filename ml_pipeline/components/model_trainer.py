@@ -104,6 +104,7 @@ class ModelTrainer:
                 f"`dataset_name` must be a string, but got {type(dataset_name).__name__}"
             )
 
+        mlflow.set_tracking_uri("http://localhost:5000") 
         mlflow.set_experiment(f"{dataset_name}-models")
 
         with mlflow.start_run():

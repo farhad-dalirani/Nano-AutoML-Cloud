@@ -70,7 +70,6 @@
       | Custom TCP | TCP      | 5000       | 0.0.0.0/0 |
 
       ```
-      
 
 7. To interact with the deployed Nano AutoML Cloud system, use the following interfaces:
     - Access your EC2 instance URL, which should look like `http://ec2-..-...-...-....compute-1.amazonaws.com:8000/docs`, to view the API endpoints for training and batch prediction on datasets. Given the current configuration, ensure you use `http` rather than `https`.

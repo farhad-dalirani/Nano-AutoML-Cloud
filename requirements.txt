@@ -11,5 +11,6 @@ fastapi
 python-multipart
 uvicorn
 black
+boto3
 
 #-e .
