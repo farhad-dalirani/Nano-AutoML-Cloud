@@ -1,22 +1,21 @@
 import os
-import fastapi
 from typing import Dict, List
 import certifi
 import pymongo
 import pandas as pd
 
 from fastapi import FastAPI, File, UploadFile, Request, status, HTTPException
-from fastapi.responses import Response
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.templating import Jinja2Templates
 from uvicorn import run as app_run
 from starlette.responses import RedirectResponse
 
 from ml_pipeline.logging.logger import logging
-from ml_pipeline.constants.training_pipeline import SCHEMA_DIR
+from ml_pipeline.constants.training_pipeline import SCHEMA_DIR, ARTIFACT_DIR, FINAL_MODEL_DIR, LOGS_DIR
 from ml_pipeline.pipeline.training_pipeline import TrainingPipeline
 from ml_pipeline.pipeline.batch_prediction import batch_data_prediction
 from ml_pipeline.utils.main_utils.utils import get_dataset_schema_mapping
+from ml_pipeline.cloud.s3_syncer import S3Sync
 
 from dotenv import load_dotenv
 
@@ -32,14 +31,14 @@ if mongo_db_url is None:
 # Set MLflow environment variable
 os.environ["MLFLOW_ARTIFACT_ROOT"] = "s3://{}/mlflow-artifacts".format(os.getenv("AWS_S3_BUCKET_NAME"))
 
+# Mongo client setup
 ca = certifi.where()
 client = pymongo.MongoClient(host=mongo_db_url, tlsCAFile=ca)
 
-templates = Jinja2Templates(directory="./templates")
-
+# FastAPI setup
 app = FastAPI()
+templates = Jinja2Templates(directory="./templates")
 origins = ["*"]
-
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
@@ -47,6 +46,45 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+def is_directory_missing_or_empty(path):
+    """
+    Returns True if the directory does not exist or is empty (no files or subdirectories).
+    
+    Returns:
+      False if the directory exists and contains files or folders.
+    """
+    if not os.path.isdir(path):
+        return True  # Directory does not exist
+    if not os.listdir(path):
+        return True  # Directory is empty
+    return False  # Directory exists and is not empty
+
+
+def sync_missing_or_empty_dirs():
+    """
+    Checks a predefined list of directories (ARTIFACT_DIR, FINAL_MODEL_DIR, LOGS_DIR) and synchronizes
+    their contents from the corresponding S3 bucket folders if the local directories are missing or empty.
+
+    For each directory in the list:
+      - Constructs the S3 URL using the AWS_S3_BUCKET_NAME environment variable and the directory name.
+      - Uses `is_directory_missing_or_empty()` to determine if the local directory needs syncing.
+      - If missing or empty, syncs the directory contents from S3 to local.
+      - Otherwise, logs that the directory already exists and is not empty.
+
+    Requires AWS credentials and bucket name to be properly set in environment variables.
+    """
+    s3_sync = S3Sync()
+
+    sync_dirs_names = [ARTIFACT_DIR, FINAL_MODEL_DIR, LOGS_DIR]
+
+    for local_dir in sync_dirs_names:
+        s3_url="s3://{}/{}".format(os.getenv("AWS_S3_BUCKET_NAME"), local_dir)
+        if is_directory_missing_or_empty(local_dir):
+            logging.info(f"Directory '{local_dir}' is missing or empty. Syncing from {s3_url}")
+            s3_sync.sync_folder_from_s3(local_dir, s3_url)
+        else:
+            logging.info(f"Directory '{local_dir}' exists and is not empty. Skipping sync.")
 
 
 @app.get("/", tags=["authentication"], status_code=status.HTTP_200_OK)
@@ -206,6 +244,10 @@ async def predict(request: Request, database_name: str, file: UploadFile = File(
 
 
 if __name__ == "__main__":
+
+    # Check and sync required directories from S3 if missing or empty
+    sync_missing_or_empty_dirs()
+
     # Starts the Uvicorn ASGI server with the FastAPI app,
     # binding it to all available network interfaces (0.0.0.0)
     # so it can be accessed externally (e.g., from outside a Docker container or EC2 instance).

@@ -8,7 +8,7 @@
 
 - **Modular, Expandable Pipeline**: Includes clearly defined components—**Data Ingestion**, **Data Validation**, **Data Transformation**, **Model Training**, **Model Evaluation**, and **Model Deployment**—designed for easy customization and scalability.
 - **Cloud-Native Deployment**: Built-in **FastAPI** endpoints enable real-time batch prediction, as well as training, directly on cloud platforms like **AWS**.
-- **Artifact Management**: Each pipeline component stores its output artifacts (e.g., models, metrics, transformed data) in **AWS S3**, ensuring traceability and reproducibility.
+- **Artifact Management**: Each pipeline component stores its output artifacts (e.g., models, metrics, transformed data) in **AWS S3**, ensuring traceability and reproducibility. This data is **synced** with S3 for persistence, particularly when redeploying a new Docker image during continuous development.
 - **Centralized Logging**: Comprehensive logs are stored in AWS for monitoring, debugging, and auditing.
 - **Experiment Tracking**: Integrated with **MLflow** for tracking experiments, model versions, and performance metrics in a cloud-based setup.
 - **Multi-Dataset Support**: Capable of handling multiple datasets concurrently for both training and batch inference tasks.

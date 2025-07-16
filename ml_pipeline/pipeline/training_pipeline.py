@@ -198,7 +198,7 @@ class TrainingPipeline:
             MLPipelineException: If syncing to S3 fails.
         """
         try:
-            aws_bucket_url = f"s3://{os.environ['AWS_S3_BUCKET_NAME']}/{ARTIFACT_DIR}/{self.training_pipeline_config.timestamp}"
+            aws_bucket_url = f"s3://{os.environ['AWS_S3_BUCKET_NAME']}/{ARTIFACT_DIR}"
             self.s3_sync.sync_folder_to_s3(
                 folder=self.training_pipeline_config.artifact_dir,
                 aws_bucket_url=aws_bucket_url,
@@ -214,7 +214,7 @@ class TrainingPipeline:
             MLPipelineException: If syncing to S3 fails.
         """
         try:
-            aws_bucket_url = f"s3://{os.environ['AWS_S3_BUCKET_NAME']}/{FINAL_MODEL_DIR}/{self.training_pipeline_config.timestamp}"
+            aws_bucket_url = f"s3://{os.environ['AWS_S3_BUCKET_NAME']}/{FINAL_MODEL_DIR}"
             self.s3_sync.sync_folder_to_s3(
                 folder=self.training_pipeline_config.model_dir,
                 aws_bucket_url=aws_bucket_url,
@@ -230,7 +230,7 @@ class TrainingPipeline:
             MLPipelineException: If syncing to S3 fails.
         """
         try:
-            aws_bucket_url = f"s3://{os.environ['AWS_S3_BUCKET_NAME']}/{LOGS_DIR}/{self.training_pipeline_config.timestamp}"
+            aws_bucket_url = f"s3://{os.environ['AWS_S3_BUCKET_NAME']}/{LOGS_DIR}"
             self.s3_sync.sync_folder_to_s3(
                 folder=LOGS_DIR, aws_bucket_url=aws_bucket_url
             )
