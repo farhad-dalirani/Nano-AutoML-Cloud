@@ -10,9 +10,14 @@ COPY . /app
 # Update the package list and install AWS CLI tool (used to interact with AWS services)
 # Update package list again (to ensure latest listings) and install Python dependencies from requirements.txt
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends awscli && \
+    apt-get install -y --no-install-recommends \
+        awscli \
+        supervisor && \
     rm -rf /var/lib/apt/lists/* && \
     pip install --no-cache-dir -r requirements.txt
-    
-# Define the command to run the application using Python 3
-CMD ["python3", "app.py"]
+
+# Copy supervisord config
+COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+
+# Set supervisor as the container entrypoint
+CMD ["/usr/bin/supervisord"]
