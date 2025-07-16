@@ -80,7 +80,7 @@ def sync_missing_or_empty_dirs():
 
     for local_dir in sync_dirs_names:
         s3_url="s3://{}/{}".format(os.getenv("AWS_S3_BUCKET_NAME"), local_dir)
-        if is_directory_missing_or_empty(local_dir):
+        if is_directory_missing_or_empty(local_dir) or LOGS_DIR == local_dir:
             logging.info(f"Directory '{local_dir}' is missing or empty. Syncing from {s3_url}")
             s3_sync.sync_folder_from_s3(local_dir, s3_url)
         else:
