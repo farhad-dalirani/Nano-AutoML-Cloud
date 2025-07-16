@@ -112,5 +112,36 @@
 
 ## Code Structure
 
+```
+.
+├── app.py
+├── Artifacts
+├── data_schema
+├── Dockerfile
+├── final_model
+├── logs
+├── ml_pipeline
+│   ├── cloud
+│   ├── components
+│   ├── constants
+│   ├── entity
+│   ├── exception
+│   ├── logging
+│   ├── pipeline
+│   └── utils
+├── push_data.py
+├── README-assets
+├── README.md
+├── requirements.txt
+├── supervisord.conf
+├── templates
+|   └── table.html
+├── LICENSE
+```
 
 ## Todo
+- User Authentication and Authorization: Implement OAuth2-based user identification and verification to enhance security and enable multi-user access control for training, prediction, and experiment tracking endpoints.
+
+- Expand Model Capabilities: Integrate advanced machine learning architectures, including Graph Neural Networks (GNNs) and TabM neural network, to improve performance on complex and structured data tasks.
+
+- Support for Multiple Data Modalities: Extend the pipeline to handle other modalities such as images, text, and time series, enabling broader applicability across diverse machine learning problems.

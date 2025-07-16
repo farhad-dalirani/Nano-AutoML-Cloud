@@ -200,7 +200,7 @@ class TrainingPipeline:
         try:
             aws_bucket_url = f"s3://{os.environ['AWS_S3_BUCKET_NAME']}/{ARTIFACT_DIR}"
             self.s3_sync.sync_folder_to_s3(
-                folder=self.training_pipeline_config.artifact_dir,
+                folder=ARTIFACT_DIR,
                 aws_bucket_url=aws_bucket_url,
             )
         except Exception as e:
