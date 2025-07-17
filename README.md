@@ -14,7 +14,7 @@
 - **Multi-Dataset Support**: Capable of handling multiple datasets concurrently for both training and batch inference tasks.
 - **MLOps & CI/CD Compliance**: Follows best practices in **MLOps** and modern **CI/CD pipelines** to ensure robust, maintainable, and automated workflows.
 - **Automated Model Selection**: Trains and evaluates multiple different kind of models using hyperparameter search, selecting the best-performing model automatically.
-- **Well-Documented**: Clear and thorough documentation to support ease of use, customization, and onboarding for new users or teams.
+- **Well-Documented**: Clear and thorough documentation to support ease of use, customization, and educational purposes.
 
 
 ## Installation and Usage
@@ -136,6 +136,8 @@
 
 ```
 .
+├── .github
+│   └── workflows
 ├── app.py
 ├── Artifacts
 ├── data_schema
@@ -159,6 +161,7 @@
 ├── templates
 |   └── table.html
 ├── LICENSE
+└── .env
 ```
 
 ## Todo
